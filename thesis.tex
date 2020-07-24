@@ -1,0 +1,122 @@
+% \documentclass[a4paper,13pt,twoside]{report}
+\documentclass[a4paper,13pt]{report}
+\usepackage{vntex}
+\usepackage[left=3cm,right=2cm,top=2cm,bottom=3cm]{geometry}
+\usepackage[acronyms]{glossaries}
+
+\makeglossaries
+\loadglsentries{acronyms.tex}
+\include{thesis.preamble}
+\include{thesis.hcmutformat}
+
+\begin{document}
+\DeclareFieldFormat{url}{\url{#1}}
+% \title{\LARGE {\bf Title of my Ph.D. Thesis}\\
+%  \vspace*{6mm}
+% }
+
+% \author{Joe Bloggs}
+% \submitdate{October 2008}
+
+% \normallinespacing
+% \maketitle
+
+\begin{titlepage}
+	\begin{center}
+% 		\begin{tabular}{rl}
+			
+  			\begin{tabular}{c}
+				ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH\\
+				TRƯỜNG ĐẠI HỌC BÁCH KHOA\\
+				KHOA KHOA HỌC VÀ KĨ THUẬT MÁY TÍNH
+			\end{tabular} 	
+% 		\end{tabular}
+    \end{center}
+
+\vspace{1.5cm}
+
+    \begin{picture}(50,0)(0,0)
+   	    \put(0,-30){\includegraphics[width=20mm, height=20mm]{images/hcmut.PNG}}
+    \end{picture}
+
+\vspace{1.5cm}
+
+\begin{center}
+\begin{tabular}{c}
+\multicolumn{1}{c}{\textbf{{\LARGE BÁO CÁO LUẬN VĂN TỐT NGHIỆP}}}\\
+\\
+\\
+\hline
+\\
+\multicolumn{1}{l}{\textbf{{\LARGE Đề tài}}}\\
+\\
+\textbf{{\Large Xây dựng ứng dụng}} \\
+\textbf{{\Large kiểm thử bảo mật ứng dụng web}} \\
+\textbf{{\Large thông qua thông điệp HTTP}} \\
+
+\\
+\hline
+\\
+
+\end{tabular}
+\end{center}
+
+\vspace{1cm}
+
+% \begin{table}[h]
+\begin{tabular}{lllll}
+\hspace{3 cm} \textbf{Hội đồng LVTN:}& &Khoa học máy tính\\\addlinespace
+
+\hspace{3 cm} \textbf{Tập thể hướng dẫn:}\\\addlinespace
+\hspace{4 cm} TS. Nguyễn An Khương &---& Khoa KH\&KT Máy tính, ĐHBK  \\
+\hspace{4 cm} Anh Đỗ Đình Huân &---& VNG Corporation \\\addlinespace
+
+\hspace{3 cm} \textbf{Giáo viên phản biện:}\\\addlinespace
+\hspace{4 cm} TS. Nguyễn Hứa Phùng &---& Khoa KH\&KT Máy tính, ĐHBK  \\\addlinespace
+
+\hspace{3 cm} \textbf{Sinh viên thực hiện:} \\\addlinespace
+\hspace{4 cm} Đặng Nhật Trình &---& 1513685 \\
+
+\end{tabular}
+% \end{table}
+
+\vspace{1.5cm}
+
+\begin{center}
+{\footnotesize Tp. Hồ Chí Minh, Tháng 12, 2019}
+\end{center}
+\end{titlepage}
+
+\preface
+\input{dedication/dedication}
+\input{abstract/abstract}
+% \input{acknowledgements/acknowledgements}
+% \input{quotes/quotes}
+
+
+\body
+% \addcontentsline{toc}{chapter}{Danh mục viết tắt}
+\printglossary[type=\acronymtype, title=Danh mục viết tắt, toctitle=Danh mục viết tắt]
+\input{introduction/introduction}
+\input{background/testing.tex}
+\input{background/web.tex}
+\input{background/vulnerabilities}
+\input{technology/technology}
+\input{body/pre-body}
+\input{body/architecture.tex}
+\input{body/implementation.tex}
+% \input{body/details.tex}
+\input{body/evaluation.tex}
+\input{conclusion/conclusion}
+
+\appendix
+\input{appendices/usage.tex}
+
+\addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+% \bibliographystyle{alpha}
+% \bibliographystyle{ieeetran}
+% \bibliography{bibliography/bibliography}
+
+\printbibliography
+
+\end{document}

@@ -1,0 +1,37 @@
+\cleardoublepage
+\pagenumbering{arabic}
+\chapter{Giới thiệu}
+\section{Đặt vấn đề}
+Thế giới hiện đại ngày càng phụ thuộc nhiều vào Internet, các ứng dụng web cũng ngày càng phổ biến và đa dạng hơn về hình thức lẫn chức năng. Các khung thức, ngôn ngữ lập trình web cũng như các hệ quản trị nội dung (content management system - \acrshort{cms}) ngày càng được cải tiến để thuận tiện hơn trong quá trình phát triển và sử dụng ứng dụng web. Ứng dụng web cũng ngày càng được sử dụng cho nhiều dịch vụ quan trọng như tài chính, mạng xã hội, các cổng tra cứu thông tin,... Tuy nhiên, với bản chất là phần mềm máy tính, các ứng dụng web hoàn toàn có khả năng xuất hiện các lỗ hổng bảo mật, điều đó khiến chúng trở thành những mục tiêu giá trị trong các cuộc tấn công bảo mật. Các lỗ hổng này có thể bắt nguồn từ lỗi phát sinh và sự thiếu kinh nghiệm trong quá trình lập trình, hoặc do sự thất bại của hệ thống trong việc phòng thủ khỏi những dữ liệu nguy hiểm từ phía người dùng. Trong lịch sử đã có rất nhiều vụ tấn công đình đám nhằm thay đổi giao diện, đánh cắp thông tin, hay tấn công từ chối dịch vụ trên nhiều cụm ứng dụng web phổ biến trên thế giới. Trong bối cảnh đó, các tổ chức, dự án bảo mật ứng dụng web lớn cũng xuất hiện theo thời gian và ngày càng lớn mạnh.
+
+Có thể thấy, nhu cầu đảm bảo bảo mật cho ứng dụng web là cực kì cấp thiết. Hiện nay trong cộng đồng an toàn thông tin trên thế giới đã xuất hiện nhiều công cụ, dịch vụ hỗ trợ kiểm thử bảo mật ứng dụng web. Tuy nhiên mỗi công cụ, dịch vụ trên đều có một số hạn chế riêng, ví dụ như mã nguồn đóng, chỉ tập trung vào việc phát hiện một lỗ hổng bảo mật duy nhất, các công cụ phát hiện được nhiều loại lỗ hổng thì người dùng phải trả phí để được sử dụng đầy đủ chức năng. Điểm chung của hầu hêt các công cụ, dịch vụ này là người dùng không dễ dàng biết được cách thức hoạt động cụ thể của nó ra sao. Quá trình kiểm thử được diễn ra tự động và không cho phép người dùng có kinh nghiệm trực tiếp lựa chọn cụ thể đối tượng kiểm thử, gây lãng phí tài nguyên để kiểm thử tất cả đối tượng trên trang web. Người dùng chỉ nắm được khái niệm cách làm của công cụ chứ không kiểm soát được công cụ đang làm việc gì cụ thể, đang kiểm thử điểm cuối nào của ứng dụng với trường hợp kiểm thử nào.\par
+Vì những lý do đó, chúng tôi sẽ tiến hành khảo sát về các phương pháp kiểm thử bảo mật, các thành phần quan trọng cũng như một vài lỗ hổng bảo mật thường gặp ở ứng dụng web để hiện thực một công cụ kiểm thử bảo mật giải quyết được các vấn đề trên.
+
+\section{Mục tiêu hiện thực công cụ}
+Xây dựng được một công cụ kiểm thử một số lỗ hổng bảo mật ở tầng ứng dụng của ứng dụng web từ phía người dùng, kết hợp được những thế mạnh của những công cụ sẵn có trên thị trường. Cụ thể các tính năng cần có của công cụ được liệt kê sau đây.
+\begin{itemize}
+    \item Công cụ phải thực thi nhanh và ổn định, mã nguồn mở, miễn phí, có khả năng kiểm thử được nhiều hơn một lỗ hổng bảo mật đặc thù.
+    \item Giao diện công cụ trong sáng, trực quan, dễ sử dụng, thuận tiện cho người dùng trong việc chọn đối tượng kiểm thử và quan sát tiến trình vận hành của công cụ.
+    \item Nhận vào dữ liệu đầu vào là các đối tượng kiểm thử cụ thể theo nhu cầu của người dùng và loại lỗ hổng cần kiểm thử.
+    \item Kiểm thử đối tượng đó bằng một loạt các trường hợp kiểm thử được phân loại theo loại lỗ hổng.
+    \item Đối với từng trường hợp kiểm thử, công cụ phải kiểm tra kết quả một cách tự động để phát hiện lỗi hoặc các hành vi khả nghi từ phía ứng dụng web mục tiêu.
+    \item Tổng hợp kết quả kiểm thử của mỗi đối tượng theo từng loại lỗ hổng.
+\end{itemize}
+Để thực hiện được các tính năng nêu trên, xuyên suốt quá trình thực hiện đề tài cần đạt được những mục tiêu sau.
+\begin{itemize}
+    \item Trước quá trình hiện thực công cụ, ta cần tìm hiểu và lực chọn (các) phương pháp kiểm thử bảo mật và công cụ, khung thức hỗ trợ thích hợp.
+    \item Tìm hiểu kĩ đặc điểm và cách thức phát hiện tự động từng loại lỗ hổng bảo mật trong phạm vi hiện thực công cụ.
+    \item Xây dụng được một phương pháp định nghĩa và sửa đổi đối tượng kiểm thử cụ thể  theo nhu cầu của người dùng.
+    \item Thiết kế kiến trúc, cấu hình công cụ hợp lý để tiếp nhận và xử lí tốt các đối tượng đó.
+    \item Các trường hợp kiểm thử được sử dụng trong công cụ phải vượt qua được càng nhiều dạng phòng thủ lỗ hổng càng tốt.
+\end{itemize}
+
+\section{Giới hạn của đề tài}
+Do giới hạn thời gian và khả năng của bản thân, công cụ được hiện thực trong luận văn này sẽ chỉ tập trung phát hiện ba lỗ hổng bảo mật ở tầng ứng dụng cụ thể là \acrfull{xss}, \acrfull{lfi} và time-based \acrfull{sqli}. Điểm chung của ba lỗ hổng này là đều có thể bị khai thác bằng dữ liệu đầu vào từ phía người dùng và dễ dàng xác nhận kết quả kiểm thử một cách tự động thông qua thông báo phản hồi \acrshort{http}. Đồng thời, muốn công cụ kiếm thử mục tiêu theo nhu cầu người dùng một cách nhanh chóng thì quá trình chọn mục tiêu kiểm thử buộc phải được thực hiện bằng tay để tránh kiểm thử lan man trên nhiều điểm cuối và tham số không liên quan. Việc tự động hóa quá trình này đòi hỏi tốn rất nhiều công sức và kinh nghiệm nhưng hiệu quả đem lại không cao nên chúng tôi sẽ cân nhắc phát triển trong tương lai.
+
+\section{Bố cục luận văn}
+Luận văn này sẽ trải dài trên 7 chương, nội dung của từng chương như sau. \par
+Ở \textbf{Chương 1}, tôi sẽ tập trung giới thiệu về nội dung, giới hạn của đề tài và mục tiêu hiện thực công cụ. Tiếp đến, tại \textbf{Chương 2}, các kiến thức nền tảng về phương pháp kiểm thử ứng dụng web và các thành phần quan trọng về mặt bảo mật của một ứng dụng web sẽ được trình bày. \par
+Tiếp theo đó, tôi sẽ giới thiệu các lớp lỗ hổng bảo mật thường gặp trên ứng dụng web, sau đó đi sâu vào tìm hiểu về lỗ hổng \acrshort{xss}, \acrshort{lfi} và time-based \acrshort{sqli} ở \textbf{Chương 3}. Ngay sau đó, tại \textbf{Chương 4}, chúng tôi sẽ trình bày về các công nghệ (ngôn ngữ, công cụ, khung thức) được sử dụng trong quá trình hiện thực công cụ. \par
+Về bước hiện thực công cụ, tại \textbf{Chương 5}, chúng tôi sẽ trình bày về kiến trúc và cách thức xây dựng công cụ quét bảo mật bán tự động. Sau khi hoàn thành việc phát triển công cụ, chúng tôi trình bày phương pháp luận và kết quả kiểm thử công cụ ở \textbf{Chương 6}. \par
+Cuối cùng, tại \textbf{Chương 7}, chúng tôi sẽ tổng kết về luận văn tốt nghiệp và trình bày hướng phát triển công cụ trong tương lai.

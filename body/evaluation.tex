@@ -1,0 +1,94 @@
+\chapter{Kiểm định và đánh giá kết quả}
+Chương này giới thiệu một bộ tiêu chí đánh giá ứng dụng fuzzing đồng thời trình bày kết quả sử dụng ứng dụng webfuzzer để kiểm thử một số trang web có lỗ hổng bảo mật. 
+\section{Bộ tiêu chí đánh giá ứng dụng webfuzzer}
+Trong luận văn này, tôi áp dụng bộ tiêu chí đánh giá ứng dụng fuzzing của Mikko Vimpari \parencite{vimpari2015evaluation} để đánh giá ứng dụng webfuzzer đã được hiện thực. Theo tác giả, bộ tiêu chí đánh giá này được xây dựng dựa trên nhu cầu của người dùng mục tiêu, cụ thể ở đây là một lập trình viên nắm được lý thuyết kiểm thử bảo mật và thời gian của anh ta là có hạn. Mục đích của anh ta là phát hiện nhanh những lỗ hổng bảo mật khá phổ biến, gần như không đáng kể (low-hanging fruits) để tầm soát một vài ứng dụng web mục tiêu. Đây là bộ tiêu chí thích hợp để kiểm thử ứng dụng webfuzzer về cả đối tượng người dùng lẫn mục đích sử dụng. Bộ tiêu chí này bao gồm 10 tiêu chí được chia thành 3 hạng mục như sau.\par 
+\textbf{Tính dễ sử dụng của ứng dụng} thể hiện qua quá trình thiết lập môi trường vận hành, khởi động ứng dụng. ứng dụng có thể chạy trên nhiều phiên bản hệ điều hành phổ biến như Windows, Linux hay Mac OS X không, hay phải cần chính xác phiên bản hệ điều hành để vận hành, hoặc khó khăn hơn, cần phải khởi tạo môi trường đặc thù sử dụng Docker chẳng hạn? ứng dụng có được biên dịch, đóng gói sẵn hay cần phải biên dịch trước khi sử dụng hay không? Ngoài ra, tài liệu chi tiết về hướng dẫn sử dụng và cá nhân hóa ứng dụng, cộng với những sự hỗ trợ của nhà phát triển cũng như cộng đồng trong quá trình sử dụng cũng là một tiêu chí đánh giá ứng dụng. Dựa theo đó tôi đánh giá tính dễ sử dụng của ứng dụng webfuzzer theo các tiêu chí sau.
+\begin{itemize}
+    \item \textbf{Tập tin thực thi có sẵn:} Một phần. ứng dụng dễ dàng được khởi động từ terminal trên hệ điều hành Ubuntu hoặc PowerShell trên Windows nhưng chưa đóng gói thành tập tin thực thi trên hai hệ điều hành trên.
+    \item \textbf{Tài liệu của ứng dụng:} Đạt. Tài liệu hướng dẫn cài đặt, sử dụng và cá nhân hóa ứng dụng được cung cấp đầy đủ tại \textbf{Phụ lục A} của luận văn này và README.md trên dự án Gitlab tại \parencite{webfuzzer-gitlab}.
+    \item \textbf{Sự hỗ trợ của cộng đồng:} Không nhiều. Hiện tại việc hỗ trợ trong quá trình sử dụng ứng dụng chỉ được thực hiện bởi tôi và ứng dụng chưa được cộng đồng biêt đến để sử dụng.
+    \item \textbf{Môi trường vận hành ứng dụng:} Đạt. ứng dụng thực thi được trên nhiều phiên bản python3 từ 3.6.0 trở lên trên hệ điều hành Windows 10 x64 phiên bản 1903 và Ubuntu 18.04 LTS.
+\end{itemize}
+Một trong những tiêu chí thể đánh giá \textbf{Tính năng thực tế} của ứng dụng là khả năng tự động, ứng dụng có thể tự động sinh ra các trường hợp kiểm thử sau đó tự động vận hành và phán đoán kêt quả kiểm thử được không? Một tiêu chí nữa là khả năng giám sát mục tiêu kiểm thử. Khi tiến hành kiểm thử mục tiêu, ứng dụng có thể nhận ra nguyên nhân gốc rễ khiến một loạt các trường hợp kiểm thử bị thất bại hay không? Cuối cùng là tiêu chí về khả năng cá nhân hóa của ứng dụng, ứng dụng có những lựa chọn về độ sâu (level) hay tập trường hợp kiểm thử tùy theo mục đích người dùng hay không? Dựa theo đó tôi đánh giá các tính năng thực tế của ứng dụng webfuzzer theo các tiêu chí sau.
+\begin{itemize}
+    \item \textbf{Khả năng tự động hóa:} Một phần. Quá trình tạo và gửi \acrshort{http} request mẫu đến ứng dụng được thực hiện bằng tay. Sau đó, quá trình kiểm thử được thực hiện hoàn toàn tự động.
+    \item \textbf{Khả năng giám sát mục tiêu:} Không.
+    \item \textbf{Các tùy chọn cá nhân hóa:} Một phần. Người dùng có thể chỉnh sửa các thiết lập kiểm thử theo từng lỗ hổng bảo mật nhưng phải điều chỉnh trong mã nguồn của ứng dụng chứ chưa thay đổi thiết lập trên giao diện ứng dụng được.
+\end{itemize}
+\textbf{Sự thông minh} của ứng dụng fuzzing cũng là một vấn đề đáng so sánh. Các trường hợp kiểm thử có được tạo ra hoặc đột biến (mutated) dựa trên các trường hợp kiểm thử có sẵn hay không, hay tất cả đêu được sinh ra ngẫu nhiên? ứng dụng có sử dụng những thuật toán tự nghiệm (heuristic) để tăng hiệu năng như kiểm tra các trường hợp biên đặc biệt hay tầm thường, áp dụng các heuristic đã được chứng minh tính hiệu quả trước đó hay không? Cuối cùng, ứng dụng có phải là một fuzzer kiểm thử dựa trên mô hình và có dễ để tạo ra một mô hình trường hợp kiểm thử hay không? Dựa theo đó tôi đánh giá sự thông minh của ứng dụng webfuzzer theo các tiêu chí sau.
+\begin{itemize}
+    \item \textbf{Dữ liệu ngẫu nhiên, đột biến hay được sinh ra từ mô hình:} Đột biến. Các trường hợp kiểm thử được cung cấp bởi ứng dụng bao phủ được nhiều trường hợp và được encode, làm rối dựa trên các trường hợp kiểm thử gốc.
+    \item \textbf{Ứng dụng có áp dụng heuristic:} Không
+    \item \textbf{Sử dụng mô hình sinh trường hợp kiểm thử:} Không
+\end{itemize}
+% \section{Tập kiểm thử}
+\section{Kết quả kiểm thử ứng dụng trên một số ứng dụng web}
+Để đánh giá chức năng phát hiện lỗ hổng bảo mật của ứng dụng trong thực tế, chúng tôi đã dùng webfuzzer để kiểm thử một vài trang web và bài lab thực hành có lỗ hổng bảo mật. Nhờ các phương pháp phát hiện lỗ hổng của ứng dụng mà tỉ lệ dương tính giả của các trường hợp kiểm thử đã \texttt{[passed]} bằng 0 (trừ lỗ hổng \acrshort{lfi}). Điều này có nghĩa là chỉ cần 1 trường hợp thỏa mãn điều kiện nhận biết lỗ hổng của ứng dụng thì chắc chắn ứng dụng web đã mắc phải lỗ hổng tương ứng. Các trường hợp \texttt{[skeptical]} là do xảy ra lỗi, ngoại lệ trong quá trình kiểm thử, hoặc có chuỗi dữ liệu thuần trả về đối với trường hợp XSS. Những trường hợp này không nói lên được khả năng có lỗ hổng bảo mật của ứng dụng web hay không, cần phải được hậu kiểm bằng tay, và do đó không được xét đến trong quá trình đánh giá kết quả ứng dụng. Cụ thể kết quả kiểm thử các mục tiêu này được thể hiện trong Bảng \ref{tab:testing-results} sau.\par
+\begin{table}[ht]
+    \centering
+    \caption{Kết quả kiểm thử một số trang web bằng ứng dụng webfuzzer}
+    \label{tab:testing-results}
+    \begin{tabular}[ht]{lcccc}
+        \toprule[1pt]\midrule[0.3pt]
+            &{}&\multicolumn{3}{c}{\textbf{Loại lỗ hổng phát hiện được}}\\ \cmidrule{3-5}\textbf{Đường dẫn URL} &\textbf{Loại lỗ hổng tồn tại}&Time-based SQLI&XSS&LFI\\ 
+        \midrule
+            \texttt{http://testphp.vulnweb.com/}&XSS,&X&X& \\
+            \texttt{search.php?test=query}&time-based SQLI& & & \\
+            \addlinespace
+            \texttt{http://testphp.vulnweb.com/}&LFI& & &(X)\\
+            \texttt{showimage.php?file=./pictures/1.jpg}& & & & \\
+            \addlinespace
+            (Lab) \texttt{https://pentesterlab.com/}&XSS&&X& \\
+            \texttt{exercises/xss\_and\_mysql\_file/}& & & & \\
+            \addlinespace
+        \midrule[0.3pt]\bottomrule[1pt]
+    \end{tabular}
+\end{table}
+Như đã trình bày ở trên, những cột tương ứng với mỗi loại lỗ hổng được đánh dấu ``\texttt{X}'' chỉ khi có ít nhất một trường hợp kiểm thử đã \texttt{[passed]}. Trường hợp lỗ hổng \acrshort{lfi} thì kết quả kiểm thử có độ tin cậy rất cao, nhưng không thể khẳng định tuyệt đối kết quả đó là chính xác 100\%. Cột ``\textbf{Đường dẫn URL}'' gồm một số trang web hoặc các bài lab thực hành có lỗ hổng bảo mật từ trang web \texttt{https://pentesterlab.com/}. Nhật kí hoạt động cụ thể của ứng dụng sau khi kiểm thử các đối tượng trên được đính kèm trong đĩa CD kèm theo luận văn này, bao gồm HTTP request mẫu và những trường hợp kiểm thử phát hiện được lỗ hổng bảo mật tương ứng. \par
+Số lượng các payload kiểm thử theo từng loại lỗ hổng là 58 payload XSS, 271 payload LFI và 454 payload time-based SQLI được chọn lọc theo mô tả trong \textbf{Chương 5}. Cụ thể kết quả kiểm thử đối với từng trang web và lỗ hổng bảo mật có sự xác nhận lại bằng tay và ứng dụng Burp Suite như sau.
+\begin{itemize}
+    \item \texttt{http://testphp.vulnweb.com/search.php?test=query} - lỗ hổng XSS
+    \begin{itemize}
+        \item Dương tính thật: 15/58 (25.86\%)
+        \item Dương tính giả: 0/58 (0\%)
+        \item \texttt{[skeptical]} dương tính: 22/22 (100\%)
+        \item \texttt{[skeptical]} âm tính: 0/22 (0\%)
+        \item Âm tính thật: 21/58 (36.21\%)
+        \item Âm tính giả: 0/58 (0\%)
+    \end{itemize}
+    \item \texttt{http://testphp.vulnweb.com/search.php?test=query} - lỗ hổng time-based SQLI
+    \begin{itemize}
+        \item Dương tính thật: 13/454 (2.96\%)
+        \item Dương tính giả: 0/454 (0\%)
+        \item \texttt{[skeptical]} dương tính: 2/2 (100\%)
+        \item \texttt{[skeptical]} âm tính: 0/2 (0\%)
+        \item Âm tính thật: 439/454 (96.7\%)
+        \item Âm tính giả: 0/454 (0\%)
+    \end{itemize}
+    \item \texttt{http://testphp.vulnweb.com/showimage.php?file=./pictures/1.jpg} - lỗ hổng LFI
+    \begin{itemize}
+        \item Dương tính thật: 8/271 (2.95\%)
+        \item Dương tính giả: 0/271 (0\%)
+        \item \texttt{[skeptical]} dương tính: 0/0
+        \item \texttt{[skeptical]} âm tính: 0/0
+        \item Âm tính thật: 263/271 (97.05\%)
+        \item Âm tính giả: 0/271 (0\%)
+    \end{itemize}
+    \item (Lab) \texttt{https://pentesterlab.com/exercises/xss\_and\_mysql\_file/} - lỗ hổng XSS
+    \begin{itemize}
+        \item Dương tính thật: 31/58 (53.45\%)
+        \item Dương tính giả: 0/58 (0\%)
+        \item \texttt{[skeptical]} dương tính: 26/26 (100\%)
+        \item \texttt{[skeptical]} âm tính: 0/22 (0\%)
+        \item Âm tính thật: 1/58 (1.72\%)
+        \item Âm tính giả: 0/58 (0\%)
+    \end{itemize}
+\end{itemize}
+Qua kết quả kiểm thử trên, ta thấy ứng dụng phát hiện rất hiệu quả các lỗ hổng bảo mật trên các trang web có lỗi. Hầu hết các trường hợp \texttt{[skeptical]} là do có lỗi hoặc ngoại lệ trong quá trình kiểm thử, thực tế sau khi kiểm tra lại bằng tay thì tất cả các trường hợp nghi ngờ này đều khai thác được lỗ hổng XSS và time-based SQLI. Các payload XSS đa dụng có khả năng phát hiện rất tốt, 37/58 payload phát hiện được lỗ hổng XSS trên trang \texttt{http://testphp.vulnweb.com/search.php?test=query} và đến 57/58 payload phát hiện được lỗ hổng trên bài lab \texttt{https://pentesterlab.com/exercises/xss\_and\_mysql\_file/}. Đối với trường hợp lỗ hổng LFI và time-based SQLI, tỉ lệ dương tính thật khá thấp vì đặc thù phương pháp xây dựng payload phát hiện hai lỗ hổng này. Đối với LFI, payload phải đi đến một độ sâu thư mục nhất định mới chạm được đến tập tin \texttt{/etc/passwd}, thành ra tất cả các payload với độ sâu thấp hơn đều không thể phát hiện được lỗ hổng này. Tương tự với lỗ hổng time-based SQLI, chỉ có các payload thỏa mãn chính xác cách thức đóng ngoặc và chú thích trong môi trường thực thi câu lệnh SQL ở phía mấy chủ web, do đó một số lượng lớn payload kiểm thử thất bại vì xảy ra lỗi cú pháp ở phía máy chủ. Ngoài những trường hợp đó ra thì ứng dụng bắt dính chính xác các trường hợp còn lại, không có trường hợp âm tính giả hay dương tính giả nào trong quá trình kiểm thử các đối tượng trên, đây là một sự thành công rất lớn trong quá trình hiện thực webfuzzer.
+
+% TODO: So sánh với: 
+% - https://hackertarget.com/
+% - Acunetix 
+% - https://www.owasp.org/index.php/Fuzzing
+% - metasploit/beef xss framework
+% - xssstrike 
