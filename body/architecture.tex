@@ -128,7 +128,7 @@ Trường hợp sử dụng 3 được thể hiện trong Bảng \ref{tab:use-ca
     \item Cộng đồng Node.js rất lớn, hơn một triệu ba trăm nghìn gói thư viện (package) được cung cấp hoàn toàn miễn phí trên trang \href{https://www.npmjs.com/}{\textit{https://www.npmjs.com/}}, hỗ trợ trải dài trên nhiều lĩnh vực lập trình từ đại trà đến đặc thù.
     \item Các ứng dụng Node.js đáp ứng tốt thời gian thực và chạy đa nền tảng, đa thiết bị.
 \end{itemize}
-\textbf{Express.js} là một khung thức nhỏ, linh hoạt được xây dựng trên nền tảng Node.js. Nhiều khung thức nổi tiếng trên nền Node.js hiện đang sử dụng Express.js như \textbf{Sails}, \textbf{Feathers},... Express.js được xây dựng dựa trên rất nhiều gói thư viện bổ trợ và cung cấp thêm nhiều tính năng để lập trình viên tốt hơn, không làm giảm tốc độ vốn có của Node.js. Trong phạm vi luận văn này, Express.js được sử dụng như một bộ định tuyến (routing), đảm nhiệm việc phản hồi thông tin lại cho người dùng khi họ yêu cầu đến những điểm cuối của ứng dụng webfuzzer. Những yêu cầu này thuộc dạng HTTP request bao gồm đường dẫn đến điểm cuối, phương thức request (GET, POST, DELETE, PUT,...) và các tham số cần thiết. \par
+\textbf{Express.js} là một khung thức nhỏ, linh hoạt được xây dựng trên nền tảng Node.js. Nhiều khung thức nổi tiếng trên nền Node.js hiện đang sử dụng Express.js như \textbf{Sails}, \textbf{Feathers},... Express.js được xây dựng dựa trên rất nhiều gói thư viện bổ trợ và cung cấp thêm nhiều tính năng để lập trình viên tốt hơn, không làm giảm tốc độ vốn có của Node.js. Trong phạm vi luận văn này, Express.js được sử dụng như một bộ định tuyến (routing), đảm nhiệm việc phản hồi thông tin lại cho người dùng khi họ gọi \acrshort{api} đến những điểm cuối của ứng dụng webfuzzer. Những yêu cầu này thuộc dạng HTTP request bao gồm đường dẫn \acrshort{api}, phương thức request (GET, POST, DELETE, PUT,...) và các tham số cần thiết theo định dạng dữ liệu đầu vào của mỗi \acrshort{api}. \par
 \textbf{React.js} là một thư viện hỗ trợ lập trình giao diện người dùng phổ biến trên ngôn ngữ Javascript. Một ứng dụng React.js được xây dưng xung quanh các thành phần (component) với khả năng tái sử dụng cao, thay vì dựa vào bản mẫu (template) như các thư viện lập trình \acrshort{ui} khác, cho phép nhúng mã \acrshort{html} trong mã Javascript nhờ vào JSX. JSX có ba điểm nổi bật chính.
 \begin{itemize}
     \item Nhanh hơn. JSX thực hiện nhiều biện pháp tối ưu hóa trong khi biên dịch sang mã Javacsript. Việc thực thi các mã JSX này tốn ít thời gian hơn so với một mã tương đương viết trực tiếp bằng Javascript.
@@ -147,7 +147,7 @@ Trong phạm vi luận văn này, Burp Suite vừa đóng vai trò như một pr
 \section{Thiết kế kiến trúc hệ thống}
 Đề mục này mô tả thiết kế chi tiết của kiến trúc hệ thống ứng dụng webfuzzer, bao gồm ba thành phần backend, \acrshort{ui} và cơ sở dữ liệu của ứng dụng.
 \subsection{Backend}
-Hai thành phần quan trọng nhất của backend 
+Hai thành phần quan trọng nhất của backend là cấu hình - mô-đun kiểm thử và giao diện lập trình ứng dụng. Các cấu hình kiểm thử được xây dựng dựa trên những yếu tố cần thiết để kiểm thử bằng chức năng \textbf{Intruder} của Burp Suite. Giao diện lập trình ứng dụng được thiết kế theo kiểu RESTful \acrshort{api}, giao tiếp với \acrshort{ui} bằng các \acrshort{http} request/response. RESTful \acrshort{api} là một tiêu chuẩn được áp dụng để thiết kế các \acrshort{api} cho ứng dụng web, thông qua việc quy định cách sử dụng các phương thức \acrshort{http} (\texttt{GET, POST, PUT, DELETE…}) và cách định dạng \acrshort{url} sao cho phù hợp với chức năng của từng \acrshort{api} và quản lý tài nguyên chung của ứng dụng một cách có hệ thống.
 \subsubsection{Cấu hình và mô-đun kiểm thử}
 Dựa vào cách thức phát hiện lỗ hổng bằng thời gian phản hồi \acrshort{http} request và sự trùng khớp nội dung của response trả về, đối với mỗi loại lỗ hổng, chúng tôi xây dựng cấu hình kiểm thử bao gồm các thuộc tính sau. 
 \begin{itemize}
@@ -166,13 +166,13 @@ Việc thiết kế mô-đun kiểm thử sẽ được hiện thực dựa trê
     \item Trong trường hợp mô-đun lưu trữ kết quả kiểm thử (\texttt{updateFuzzingLog}) lưu lại (hoặc cập nhật) loại lỗ hổng mà điểm cuối của ứng dụng web mục tiêu mắc phải kèm theo những payload phát hiện được lỗ hổng tương ứng vào cơ sở dữ liệu.
 \end{enumerate}
 \subsubsection{Giao diện lập trình ứng dụng - \acrshort{api}}
-Giao diện lập trình ứng dụng của webfuzzer sẽ được điều hướng thông qua chức năng định tuyến (routing) được hỗ trợ bởi khung thức Express.js và hiện thực bằng các lớp trình điều khiển (controller). Các lớp này cung cấp các phương thức để tương tác với cơ sở dữ liệu, trả về thông tin và tiến hành kiểm thử ở phía backend. \acrshort{ui} của webfuzzer sẽ tạo \acrshort{http} request gọi đến đường dẫn \acrshort{api} kèm theo những tham số cần thiết, các phương thức này sẽ xử lý những request đó và trả về response dưới dạng đối tượng JSON. Các lớp trình điều khiển và các phương thức trong đó hoạt động độc lập với nhau, được phân loại theo chức năng như sau.
+Giao diện lập trình ứng dụng của webfuzzer sẽ được điều hướng thông qua chức năng định tuyến (routing) được hỗ trợ bởi khung thức Express.js và hiện thực bằng các lớp trình điều khiển (controller class). Các lớp này cung cấp các phương thức (method) để tương tác với cơ sở dữ liệu, trả về thông tin và tiến hành kiểm thử ở phía backend. \acrshort{ui} của webfuzzer sẽ tạo \acrshort{http} request gọi đến đường dẫn \acrshort{api} kèm theo những tham số cần thiết, các phương thức này sẽ xử lý những request đó và trả về response dưới dạng đối tượng JSON. Các lớp trình điều khiển và các phương thức trong đó hoạt động độc lập với nhau, được phân loại theo chức năng như sau.
 \begin{itemize}
     \item Lớp \textbf{BurpController} xử lý các yêu cầu liên quan đến \acrshort{http} request mẫu, bao gồm nhận request từ phía phần mở rộng Burp Suite và trả về danh sách các request mẫu đã lưu.
     \item Lớp \textbf{TargetController} đảm nhiệm việc tạo yêu cầu kiểm thử, truy vấn cấu hình kiểm thử và thông tin của các yêu cầu kiểm thử. Các phương thức trong lớp này không chỉ trả về một danh sách các yêu cầu kiểm thử được lọc ra theo nội dung tìm kiếm hoặc phân loại theo kết quả kiểm thử có lỗ hổng hay không mà còn có thể trả về thông tin chi tiết của một yêu cầu kiểm thử đơn lẻ.
     \item Lớp \textbf{FuzzController} cung cấp các phương thức thực thi yêu cầu kiểm thử theo ID hoặc một yêu cầu ngẫu nhiên đã được tạo.
 \end{itemize}
-Mỗi phương thức trong các lớp trình điều khiển này thực hiện những công việc tương ứng với chức năng của một \acrshort{api}. Cụ thể, Bảng \ref{tab:api-design} dưới đây mô tả kiến trúc giao diện lập trình ứng dụng ở phía backend của webfuzzer.
+Mỗi phương thức trong các lớp trình điều khiển này thực hiện những công việc tương ứng với chức năng của một \acrshort{api}. Cụ thể, Bảng \ref{tab:api-design} dưới đây mô tả kiến trúc giao diện lập trình ứng dụng ở phía backend của webfuzzer, được xây dựng dựa trên tiêu chuẩn RESTful.
 \FloatBarrier
 \begin{table}[ht]
     \centering
@@ -202,7 +202,7 @@ Mỗi phương thức trong các lớp trình điều khiển này thực hiện
             {}&searchUrl&\colorbox{gray!30}{\texttt{GET /target/search}}&Lọc yêu cầu kiểm thử\\
             {}&{}&{}&theo \acrshort{url}\\
             \midrule[0.3pt]
-            {}&executeFuzzRequest&\colorbox{gray!30}{\texttt{GET /fuzz/}}&Thực thi một yêu cầu\\
+            {}&executeFuzzRequest&\colorbox{gray!30}{\texttt{GET /fuzz}}&Thực thi một yêu cầu\\
             FuzzController&{}&{}&kiểm thử theo ID\\
             \addlinespace
             {}&executeSubmittedRequest&\colorbox{gray!30}{\texttt{GET}}&Thực thi một yêu cầu\\
@@ -211,26 +211,32 @@ Mỗi phương thức trong các lớp trình điều khiển này thực hiện
     \end{tabular}
 \end{table}
 % TODO: Viết phần cấu trúc chương trình này nếu có thời gian
-\subsubsection{Cấu trúc chương trình}
-\begin{itemize}
-    \item Quản lý việc tương tác với cơ sở dữ liệu
-    \item 
-\end{itemize}
+% \subsubsection{Cấu trúc chương trình}
+% \begin{itemize}
+%     \item Quản lý việc tương tác với cơ sở dữ liệu
+%     \item 
+% \end{itemize}
 \subsection{Giao diện người dùng}
 % \begin{enumerate}[label*=\arabic*.]
 %     \item 
 % \end{enumerate}
-Giao diện của ứng dụng webfuzzer sẽ có hai trang web chính, bao gồm các thành phần như mô tả sau.
+Giao diện của ứng dụng webfuzzer sẽ có hai trang web chính và thanh điều hướng để chuyển đổi qua lại giữa hai trang này. Thiết kế chi tiết kèm theo những \acrshort{api} mà các thành phần này sử dụng được mô tả như sau.
 \begin{enumerate}
-    \item Bảng điều khiển (Dashboard) để người dùng tạo yêu cầu kiểm thử.
+    \item Trang bảng điều khiển (Dashboard page) để người dùng tạo yêu cầu kiểm thử dựa trên \acrshort{http} request mẫu và cấu hình kiểm thử.
     \begin{itemize}
-        \item 
+        \item Khung hiển thị danh sách \acrshort{url} các \acrshort{http} request mẫu để chọn. Danh sách này là kết quả trả về của việc gọi \acrshort{api} \texttt{GET /}, đồng thời có khung hiển thị nội dung của request mẫu đã chọn kèm theo các kí tự ``\$'' đánh dấu vị trí chèn payload như lúc gửi request mẫu từ chức năng \textbf{Intruder} của Burp Suite.
+        \item Khung hiển thị và chọn các loại lỗ hổng bảo mật cần kiểm thử. Khung này gồm một danh sách các checkbox kèm theo tên lỗ hổng, người dùng có thể chọn một hay nhiều lỗi tùy theo nhu cầu kiểm thử. Danh sách các lỗ hổng này được trả về thông qua việc gọi \acrshort{api} \texttt{GET /target/configs}.
+        \item Nút tạo yêu cầu kiểm thử cho phép người dùng tạo yêu cầu kiểm thử từ request mẫu và các lỗ hổng bảo mật đã chọn, gọi đến \acrshort{api} \texttt{POST /target}.
     \end{itemize}
-    \item Kết quả kiểm thử (Result) để người dùng thực thi và kiểm tra kết quả kiểm thử.
+    \item Trang kết quả kiểm thử (Result page) để người dùng thực thi và kiểm tra kết quả kiểm thử. Trang này cho phép người dùng xem thông tin chi tiêt của mỗi yêu cầu kiểm thử, đồng thời cho phép (tái) thực thi những yêu cầu đã tạo hoặc kiểm thử chưa hoàn tất.
     \begin{itemize}
-        \item 
+        \item Thành phần chính của trang này là một bảng hiển thị thông tin tổng quan của một danh sách các yêu cầu kiểm thử được trả về từ \acrshort{api} \texttt{GET /target/list} hoặc \texttt{GET /target/search}.
+        \item Mỗi hàng của bảng tương ứng với một yêu cầu kiểm thử. Cuối hàng có một nút nhấn để xổ xuống thông tin chi tiết của yêu cầu kiểm thử tương ứng, được truy vấn bằng \acrshort{api} \texttt{GET /target}.
+        \item Ở cuối phần thông tin chi tiết của một yêu cầu kiểm thử, chúng tôi thêm một nút nhấn gọi đến \acrshort{api} \texttt{GET /fuzz} để (tái) thực thi yêu cầu kiểm thử đang chọn.
     \end{itemize}
+    \item Thanh điều hướng (Sidebar) gồm tên ứng dụng webfuzzer, hai mục Dashboard và Result để điều hướng tới hai trang web chính của ứng dụng, kèm theo đường dẫn đến thư mục mã nguồn ứng dụng trên gitlab.
 \end{enumerate}
+Bên cạnh các thành phần chức năng chính trên, chúng tôi còn cần phải hiện thực thêm một số thành phần của \acrshort{ui} để cải thiện trải nghiệm người dùng (user experience - UX) như hệ thống thông báo đẩy (toast notification), giao diện ứng dụng đẹp mắt, dễ nhìn,...
 \subsection{Cơ sở dữ liệu}
 Nhằm đảm bảo mục đích lưu trữ các \acrshort{http} request mẫu, yêu cầu và kết quả kiểm thử, cơ sở dữ liệu của ứng dụng nên tách ra làm ba bảng chứa các đối tượng trên, tạm gọi lần lượt là các bảng \texttt{Endpoint, Request, Result}. Đối tượng chính là sẽ là bảng \texttt{Request}, chứa request mẫu, cấu hình (nếu có thể), các loại lỗ hổng cần kiểm thử, kết quả kiểm thử và một số thông tin khác. Một request mẫu có thể được kiểm thử nhiều lần tùy theo nhu cầu của người dùng nên ta tách \texttt{Endpoint} ra thành một bảng riêng, bảng \texttt{Request} lúc này sẽ có một trường tham khảo đến khóa chính của bảng \texttt{Endpoint} để tránh tình trạng dư thừa dữ liệu. Tương tự, bảng \texttt{Result} chứa kết quả kiểm thử cũng nên được tách riêng và thiết lập quan hệ khóa ngoài với bảng \texttt{Request} để dễ dàng thay đổi và mở rộng sau này.\par
 Ngoài ra, có một phần dữ liệu cần lưu trữ thuộc kiểu đối tượng JSON (JavaScript Object Notation) ở phía backend, một kiểu dữ liệu mở trong Node.js và Javascript, được cấu thành từ nhiều cặp thuộc tính - giá trị. MySQL không hỗ trợ lưu trữ trực tiếp kiểu dữ liệu đối tượng JSON này nên các giá trị có kiểu này cần được chuỗi hóa ở phía backend trước khi gửi đến cơ sở dữ liệu. Vì lý do đó, một số trường tương ứng trong các bảng sẽ có kiểu chuỗi (string) để lưu trữ chúng.
