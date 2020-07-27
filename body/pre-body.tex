@@ -17,21 +17,11 @@ Hơn nữa, vấn đề đạo đức nghề nghiệp phải luôn luôn đượ
 
 \begin{itemize}
     \item Hiện thực chức năng thường dùng nhất trong 
-    \item Việc chuyển đổi cùng một cấu hình kiểm thử từ thẻ này sang thẻ khác khá phiền phức, việc định ra một cấu hình kiểm thử mặc định rồi dùng để kiểm thử nhiều request mẫu tương tự nhau là cần thiết và tiện lợi.
+    \item Việc chuyển đổi cùng một cấu hình kiểm thử từ thẻ này sang thẻ khác khá phiền phức, nhu cầu định ra một cấu hình kiểm thử mặc định rồi dùng để kiểm thử nhiều request mẫu tương tự nhau là cần thiết và giúp tiết kiệm thời gian hơn.
+    \item Dễ dàng triển khai ứng dụng kiểm thử ở các dịch vụ cung cấp máy chủ ảo hóa (virtual private service - \acrshort{vps}. Việc kiểm thử bằng Burp Suite trên máy tính cá nhân tiêu tốn khá nhiều tài nguyên, cản trở công việc. Nhu cầu .. Việc này cũng giúp tránh được nguy cơ địa chỉ IP của máy tính cá nhân bị block theo vùng địa lý hoặc bởi các chính sách kiểm soát lưu lượng truy cập bởi ứng dụng web mục tiêu do gửi quá nhiều request đến trong một khoảng thời gian ngắn, giúp người kỹ sư kịp thời định ra phương hướng khác để tiếp cận mục tiêu.
 \end{itemize}
 
 
-% \section{Giới thiệu khái quát kiến trúc công cụ}
-% Dựa vào những hiểu biêt về lỗ hổng bảo mật ứng dụng web và các phương pháp kiểm thử, chúng tôi đã hiện thực thành công công cụ \textbf{webfuzzer}. Kiến trúc hiện thực của công cụ phục vụ tốt cho việc tự động kiểm thử bảo mật các ứng dụng web thông qua những  \acrshort{http} request được chọn bằng tay và gửi đến công cụ bởi một phần mở rộng của Burp Suite. Các mô-đun được hiện thực trong công cụ được mô tả như Hình \ref{fig:final-architecture} dưới đây.
-% \begin{figure}[H]
-%   \centering
-%     \includegraphics[width=\textwidth,keepaspectratio=true]{images/final-architecture.png}
-%   \caption{Kiến trúc hiện thực chính thức của công cụ}
-%   \label{fig:final-architecture}
-% \end{figure}
-% % TODO: Viết thêm về cách xây dựng Burp Suite extension chỗ này 
-% Trong quá trình kiểm thử giao diện web bằng tay, sẽ có những \acrshort{http} request được gửi đi thông qua việc gọi đường dẫn URL kèm tham số hoặc việc gửi văn bản, hình ảnh chứa payload đến điểm cuối của ứng dụng web mục tiêu, tương ứng cũng sẽ có những \acrshort{http} response được trả về. Công cụ này sử dụng thêm một phần mở rộng Burp Suite như một proxy trung gian (interception proxy) để giữ lại những \acrshort{http} request thông qua quá trình lựa chọn bằng tay, sau đó chọn ra những tham số cần kiểm thử và chuyển tiếp request mẫu (base request) đó đến mô-đun xây dựng \acrshort{http} request để tiếp tục quá trình kiểm thử với những payload khác. Việc này giúp xác định chính xác điểm cuối cũng như các tham số kèm theo request, ta chỉ việc thay đổi giá trị của các tham số bằng payload khác nhau mà thôi. Việc này cũng giúp loại bỏ nhu cầu thử sai với số lượng rất lớn những điểm cuối và tham số không liên quan (có thể không mắc phải lỗ hổng bảo mật nào), từ đó tăng hiệu năng và giảm thời gian thực thi của công cụ đi rất nhiều.\par
-% \textbf{Máy chủ} là bộ phận trung tâm đảm nhiệm chức năng gửi và nhận \acrshort{http} request/response, tương tác với ứng dụng web mục tiêu. Máy chủ này có thể do ta tự triển khai (deploy) hoặc triển khai trên các dịch vụ cung cấp máy chủ ảo hóa (virtual private service - \acrshort{vps} hay virtual dedicated server - VDS) để có thể linh hoạt sử dụng công cụ trước nguy cơ bị chặn bởi địa chỉ IP theo vùng địa lý hoặc bởi các chính sách kiểm soát lưu lượng truy cập của nhà cung cấp ứng dụng web trong tương lai. Bộ phận này gồm có hai mô-đun phụ.
 % \begin{itemize}
 %     \item \textbf{Mô-đun xây dựng \acrshort{http} request} sẽ dựng nên một \acrshort{http} request hoàn chỉnh bằng cách thay thế payload có sẵn đã được làm rối vào những chỗ được ta đánh dấu. Request sau khi được dựng lên xong sẽ được gửi đến một điểm cuối (endpoint) của ứng dụng web mục tiêu đồng thời được truyền vào mô-đun xác nhận lỗi cũng với \acrshort{http} response tương ứng mà ứng dụng web trả về cho máy chủ để kiểm tra và lưu vào nhật kí hoạt động sau này. Mô-đun này được hiện thực bằng một hàng đợi lần lượt gửi đi các request hoàn chỉnh đã được dựng lại và chèn payload vào.
 %     \item \textbf{Mô-đun socket listener} được hiện thực bằng socket sẽ liên tục lắng nghe mọi \acrshort{http} request mẫu và response gửi đến nó và chuyển tiếp response đến mô-đun xác nhận lỗi hoặc chuyển tiếp request mẫu đến mô-đun xây dựng \acrshort{http} request. 

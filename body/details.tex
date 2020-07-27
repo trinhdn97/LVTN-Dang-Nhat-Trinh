@@ -169,69 +169,8 @@ Mô-đun này đảm nhiệm việc xử lí HTTP response trả về từ ứng
     \item \textbf{text} chứa nội dung unicode của response, có kiểu tùy vào trường \texttt{Content-Type} trên tiêu đề.
     \item \textbf{elapsed} chứa thời gian xử lí request tính theo giây, từ lúc gửi request đến khi nhận được response tương ứng.
 \end{itemize}
-Đối với mỗi loại lỗ hổng bảo mật, chúng tôi định nghĩa ra cấu hình phát hiện lỗ hổng tương ứng. Các cấu hình này quy định các tham số phục vụ cho quá trình họat động và phát hiện lỗ hổng bảo mật, cụ thể như sau.\\
-\begin{python}
-config = {
-    "1": {"id":1 , "label": "XSS", "fileToFuzz":"payloads/xss/xss-polyglots.txt", "output":logFileName, "match":["y4t0g4m1","XSS"], "time":5},
-    "2": {"id":2 , "label": "LFI", "fileToFuzz":"payloads/lfi/lfi-full.txt", "output":logFileName, "match":["root:x"], "time":""},
-    "3": {"id":3 , "label": "Time-based SQLI", "fileToFuzz":"payloads/sqli/sqli-time-based.txt", "output":logFileName, "match":"", "time":""}
-}
-\end{python}
-\begin{itemize}
-    \item \textbf{id} khớp với loại lỗ hổng để kiểm thử được người dùng chọn ở giao diện khởi động công cụ.
-    \item \textbf{label} là tên của lỗ hổng đang kiểm thử, dùng trong việc hiển thị trên giao diện và ghi nhật kí hoạt động.
-    \item \textbf{fileToFuzz} là đường dẫn tập tin chứa các payload kiểm thử. Mặc định các payload này được chứa trong thư mục \texttt{src/payloads} và phân loại theo lỗ hổng bảo mật.
-    \item \textbf{output} chứa ngày giờ bắt đầu tiến hành kiểm thử để lưu vào nhật kí hoạt động.
-    \item \textbf{match} là một mảng các chuỗi để so trùng trên \acrshort{http} response, phục vụ việc phát hiện lỗ hổng \acrshort{xss} và \acrshort{lfi}. 
-    \item \textbf{time} là thời gian thực hiện một request kiểm thử tối thiểu để được coi là phát hiện thành công lỗ hổng time-based \acrshort{sqli}. Thuộc tính này có thể là số giây cụ thể hoặc một chuỗi rỗng trong trường hợp người dùng không muốn giới hạn thời gian.
-\end{itemize}
-Các cấu hình này đã khá tối ưu trong việc giảm tỉ lệ dương tính giả theo phương pháp phát hiện lỗ hổng của công cụ. Hiện tại các cấu hình trên đang được hardcode trong tập tin \texttt{src/preFuzzing.py}, người dùng có thể sửa đổi các thuộc tính \texttt{fileToFuzz, match, time} trong tập tin trên theo nhu cầu kiểm thử do công cụ chưa hỗ trợ việc thay đổi các thuộc tính này ở ngoài giao diện. Kết hợp các cấu hình này và các thuộc tính của biến response trả về, chúng tối định ra chi tiết phương thức phát hiện các lỗ hổng bảo mật như sau.
 
-\subsubsection{Đối với lỗ hổng \acrlong{xss}}
-Để phát hiện lỗ hổng \acrshort{xss}, ta tùy thuộc vào kiểu dữ liệu trả về thông qua trường \texttt{Content-Type} trong header của \acrshort{http} response trả về.\par
-Ta xét trường hợp \texttt{Content-Type} là \texttt{text/html} hay \texttt{application/xhtml+xml}. Nội dung response trả về là những đoạn mã HTML hay XHTML, có thể được kết xuất thành một trang web bằng trình duyệt. Do payload của chúng tôi sử dụng các câu lệnh JavaScript \texttt{alert}, \texttt{prompt} nên nếu ứng dụng web mắc lỗi \acrshort{xss}, nó sẽ trả về cho trình duyệt người dùng những đoạn mã HTML kèm theo các câu lệnh JavaScript \texttt{alert} và \texttt{prompt} mà chúng tôi đã chèn vào payload. Chức năng của hai lệnh này là hiện ra những thông báo trực quan trên giao diện trang web, người dùng có thể nhận biết dễ dàng, \textbf{webfuzzer} cũng có thể tự động phát hiện được thông qua thư viện Selenium trên Python. Từ đó, công cụ có thể kết luận sự hiện diện của lỗ hổng \texttt{xss} thông qua việc kết xuất lại mã HTML trong response trả về. Tuy nhiên phương pháp này gặp khó khăn ở chỗ, Selenium không thể kết xuất mã HTML từ nội dung của một response có sẵn thuộc class \texttt{requests.Response}. Bản thân Selenium chỉ có thể kết xuất những mã HTML trên trình duyệt của nó từ response trả về thông qua việc gọi chính xác \acrshort{url} với phương thức GET và tham số trên URL, trong khi \texttt{webfuzzer} lại kiểm thử phần lớn bằng các POST request với các tham số nằm ở phần nội dung. Chúng tôi khắc phục đặc điểm này bằng cách lưu mã HTML trả về theo response dưới dạng một tập tin HTML tĩnh bằng hàm \texttt{writeHTMLFile}, sau đó dùng Selenium để kết xuất lại nội dung trang web từ tập tin HTML và kiểm tra thông báo popup bằng hàm \texttt{alertValidator} như sau.\\
-\begin{python}
-def writeHTMLFile(str):
-    f = open("webfuzzer-resp.html", "w+")
-    f.write(str + "\n")
-    f.close()
-
-def alertValidator(resp, config):
-    global browser, filePath
-    browser.get("file:" + filePath)
-    try:
-        WebDriverWait(browser, 5).until(EC.alert_is_present(), 'Waiting for a popup to appear...')
-        alert = browser.switch_to.alert
-        ret = False
-        if alert.text in config: ret = True
-        alert.accept()
-        return ret
-    except TimeoutException as e:
-        return False
-\end{python}
-Ban đầu khi chỉ đơn thuần kiểm tra có thông báo popup ra hay không, công cụ \texttt{webfuzzer} gặp khá nhiều trường hợp dương tính giả. Ví dụ khi kiểm thử một trang web có chức năng đăng nhập người dùng, công cụ nhập các payload vào ô tên đăng nhập và mật khẩu. Các payload này hiển nhiên là thông tin đăng nhập không hợp lệ, do đó trang web hiện ra thông báo popup với nội dung ``Tên đăng nhập hoặc mật khẩu không hợp lệ''. Công cụ đã hiểu nhầm thông báo đó được sinh ra do payload được thực thi ở trình duyệt người dùng, từ đó nhận diện nhầm là trang web này có lỗ hổng \acrshort{xss}. Để khắc phục nhược điểm này, chúng tôi đã sửa đổi payload sao cho các payload này xuất ra nội dung đặc thù, thêm các chuỗi đặc thù đó vào thuộc tính \texttt{match} của cấu hình, đồng thời tích hợp thêm vào hàm \texttt{alertValidator} một chức năng nhỏ giúp kiểm tra nội dung của thông báo popup có hoàn toàn giống phần tử nào trong thuộc tính \texttt{match} hay không. Khi đó, chúng tôi kiểm soát được thông báo nào là do payload gây ra, cụ thể là popup ra chuỗi ``y4t0g4m1'' hoặc ``XSS'', từ đó chắc chắn không có trường hợp dương tính giả nào trong những payload đã \texttt{[passed]}.\par
-Sau khi đã xác nhận payload có phát hiện được lỗ hổng hay không, \texttt{webfuzzer} sẽ tiến hành xuất kết quả kiểm thử theo từng dòng ra giao diện công cụ để người dùng theo dõi, đồng thời gọi hàm \texttt{addToLog} với các tham số cần thiết để mô-đun quản lý nhật kí hoạt động ghi lại. Đối với giao diện công cụ trên commmand line, mỗi dòng sẽ in ra payload kèm theo kết quả kiểm thử tương ứng là \texttt{[passed]} hay \texttt{[failed]}. Đoạn mã sau kiểm tra nếu request trả về mã HTML hay XHTML, công cụ sẽ lưu lại đoạn mã đó để kết xuất trên trình duyệt, thông báo cho người dùng và lưu lại nhật kí hoạt động.\\
-\begin{python}
-if resp.headers['Content-Type'].find("html") > 0:
-    writeHTMLFile(resp.text)
-    if alertValidator(resp, config['match']):
-        print(green + "[passed]    " + yellow + str(resp.status_code) + "\t" + str(len(resp.text)) + "\t" + "{:<10}".format(str(resp.elapsed.total_seconds())) + "\t" +  payload + "\t" + end)
-        addToLog(req, config['label'], unescapePayload(payload), method, config["output"])
-    else:
-        print(red + "[failed]    " + yellow + str(resp.status_code) + "\t" + str(len(resp.text)) + "\t" + "{:<10}".format(str(resp.elapsed.total_seconds())) + "\t" +  payload + "\t" +  end)
-\end{python}
-Tiếp đến, ta xét trường hợp \texttt{Content-Type} là \texttt{text/xml}, \texttt{application/xml} hay \texttt{text/plain}. Đây là những kiểu dữ liệu chuỗi đơn thuần. Hầu hết khi ứng dụng web xác định trả về dữ liệu kiểu văn bản không phải mã \acrshort{html} thì rất có thể bên phía server-side đã áp dụng các biện pháp lọc hoặc vô hiệu hóa payload rồi. Điều đó có nghĩa là trong quá trình giao tiếp bằng thông điệp \acrshort{http}, ứng dụng web đã xác định kiểu dữ liệu nhận được và truyền đi là chuỗi, do đó các kí tự đặc biệt có thể gây lỗi như các dấu thẻ HTML, các từ khóa JavaScript, SQL được xem như dữ liệu nguy hiểm và lọc bỏ bị đối xử như chuỗi kí tự thông thường. Điều này dẫn đến payload không có khả năng được nhận dạng là mã JavaScript hay HTML và thực thi bởi trình duyệt người dùng. Vì thế đối với các chuỗi kí tự thuần này, chúng tôi chỉ so trùng xem có xuất hiện chuỗi nào trong thuộc tính ``\texttt{match}'' của cấu hình phát hiện lỗ hổng XSS hay không, nếu có thì chúng tôi đánh dấu là \texttt{[skeptical]} để kiểm tra lại, không phải máy chủ web nào cũng hiện thực tốt chức năng vô hiệu hóa và lọc dữ liệu đầu vào. Việc này giúp không ảnh hưởng đến tỉ lệ dương tính giả của công cụ vì khả năng rất lớn các văn bản trả về này không thể được xử lí bởi trình duyệt người dùng dưới dạng mã nguồn của một ngôn ngữ lập trình nào. Đoạn mã python sau mô tả quá trình tìm kiếm từng chuỗi trong cấu hình trong nội dung request trả về. Nếu có một phát hiện trùng lặp thì đánh dấu payload đó là \texttt{[skeptical]} và thoát khỏi vòng lặp.\\
-\begin{python}
-elif config['match'] != '':
-    for key in config['match']:
-        if key in resp.text:
-            print(purple + "[skeptical]    " + yellow + str(resp.status_code) + "\t" + str(len(resp.text)) + "\t" + "{:<10}".format(str(resp.elapsed.total_seconds())) + "\t" +  payload + "\t" + key +  end)
-            addToLog(req, config['label'], "SKEPTICAL: " + unescapePayload(payload), method, config["output"])
-            break
-        elif key == config['match'][len(config['match']) - 1]:
-            print(red + "[failed]    " + yellow + str(resp.status_code) + "\t" + str(len(resp.text)) + "\t" + "{:<10}".format(str(resp.elapsed.total_seconds())) + "\t" +  payload + "\t" + key +  end)
-            pass
-\end{python}
+Kết hợp các cấu hình này và các thuộc tính của biến response trả về, chúng tối định ra chi tiết phương thức phát hiện các lỗ hổng bảo mật như sau.
 
 \subsubsection{Đối với lỗ hổng \acrlong{lfi}}
 Để phát hiện lỗ hổng \acrshort{lfi}, chúng tôi thực hiện tương tụ như việc so trùng trong trường hợp \texttt{Content-Type} của response trả về không phải là mã \acrshort{html} đối với lỗ hổng \acrshort{xss}. Cụ thể, chúng tôi cố gắng đọc nội dung tập tin \texttt{/etc/passwd} bằng các payload được chèn vào, tập tin này luôn bắt đầu bằng chuỗi ``\texttt{root:x:}'' trên các máy chủ ứng dụng web nhân Unix. Một khi response trả về có chuỗi này thì khả năng rất cao ứng dụng web mắc phải lỗ hổng \acrshort{lfi}.\par
@@ -256,19 +195,4 @@ def timebasedDetect(req, resp, payload, isTimedOut, config, method=None):
         addToLog(req, config['label'], unescapePayload(payload), method, config["output"])
     else:
         print(red + "[failed]    " + yellow + str(resp.status_code) + "\t" + str(len(resp.text)) + "\t" + "{:<10}".format(str(resp.elapsed.total_seconds())) + "\t" +  payload + "\t" +  end)
-\end{python}
-
-\subsection{Mô-đun quản lý nhật kí hoạt động}
-Trong quá trình kiểm thử, những payload đã \texttt{[passed]} hoặc \texttt{[skeptical]} sẽ được ghi lại vào các tập tin văn bản chứa trong thư mục \texttt{logs/} trong thư mục gốc của mã nguồn công cụ. Các tập tin này phân biệt với nhau bởi ngày giờ kiểm thử và loại lỗ hổng trên tên của tập tin. Mỗi tập tin chỉ chứa một request mẫu và các payload khai thác được lỗ hổng đó kèm theo ghi chú ``\texttt{SKEPTICAL}'' (nếu có) đối với các payload thuộc diện nghi ngờ. Đoạn mã python dưới đây thực hiện chức năng viết nhật kí hoạt động.\\
-\begin{python}
-def addToLog(req, type, payload, method, logFileName):
-    parsedReq = constructRequest(req, method)
-    path = "logs/" + type + " - " + logFileName + ".txt"
-    if not os.path.isfile(path):
-        f = open(path, "w+")
-        f.write("Request:\n" + parsedReq + "\n\nPayload:\n")
-    else:
-        f = open(path, "a+")
-    f.write(payload + "\n")
-    f.close()
 \end{python}
