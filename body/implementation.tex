@@ -52,7 +52,7 @@ Cụ thể cấu hình được áp dụng trong ứng dụng và biểu thức 
 \end{lstlisting}
 Các cấu hình kiểm thử được quản lý bằng id dạng số, được định nghĩa và cung cấp từ phía backend thông qua \acrshort{api} để thống nhất giữa ba thành phần của hệ thống trong quá trình thực thi và lưu trữ. Các cấu hình này thường được chúng tôi sử dụng trong quá trình tìm lỗ hổng bảo mật trên các ứng dụng web bằng Burp Suite, chúng tôi sử dụng lại những cấu hình này cho việc kiểm thử ở ứng dụng webfuzzer để tiện so sánh và đánh giá kết quả hiện thực ứng dụng. Vì gặp khó khăn trong việc truyền biểu thức chính quy trong Node.js qua lại giữa \acrshort{ui} và cơ sở dữ liệu (bao gồm việc chuỗi hóa để lưu vào cơ sở dữ liệu và tái cấu trúc biểu thức chính quy để kiểm thử trên backend) nên hiện tại các cấu hình trên đang được thiết lập trong tập tin \texttt{globalConfig.js} trong thư mục gốc của mã nguồn backend, người dùng có thể sửa đổi các thuộc tính \texttt{payloadFile, match, time,...} trong tập tin trên theo nhu cầu kiểm thử. Ứng dụng chưa hỗ trợ việc thay đổi các thuộc tính này, linh động hóa quá trình thiết lập cấu hình kiểm thử từ phía \acrshort{ui}.\par
 \subsection{Thiết lập các biến môi trường}
-
+Các biến môi trường (environment variables) 
 \FloatBarrier
 \begin{table}[ht]
     \centering
@@ -103,7 +103,7 @@ Hình \ref{fig:swagger-api} dưới đây mô tả tổng thể các \acrshort{a
 \subsubsection{Mô-đun lưu trữ kết quả kiểm thử}
 \section{Giao diện người dùng}
 \section{Cơ sở dữ liệu}
-Mục đích của cơ sở dữ liệu của ứng dụng webfuzzer là để lưu trữ các request mẫu mục tiêu, yêu cầu kiểm thử theo loại lỗ hổng và kết quả tương ứng. Chúng tôi lựa chọn một cơ sở dữ liệu quan hệ, cụ thể là MySQL vì phù hợp mô hình dữ liệu và nội dung lưu trữ. Bảng \ref{tab:db-tables} dưới đây mô tả tên và chức năng của các bảng trong lược đồ.
+Dựa vào thiết kế đã đề ra ở \textbf{Chương 5}, chúng tôi hiện thực cấu trúc cơ sở dữ liệu của ứng dụng webfuzzer gồm ba bảng chính. Bảng \ref{tab:db-tables} dưới đây mô tả tên và chức năng của từng bảng trong lược đồ.
 \begin{table}[ht]
     \centering
     \caption{Các bảng trong lược đồ quan hệ}
