@@ -1,14 +1,17 @@
 \chapter{Hiện thực ứng dụng webfuzzer}
 Chương này mô tả chi tiết hiện thực của kiến trúc hệ thống ứng dụng webfuzzer, bao gồm ba thành phần backend, \acrshort{ui} và cơ sở dữ liệu của ứng dụng.
 \section{Backend}
+\subsection{Kết nối đến dịch vụ MySQL của hệ điều hành}
+\subsection{Giao diện lập trình ứng dụng}
+
 \subsection{Phần mở rộng Burp Suite}
-Phần mở rộng Burp Suite cho phép gửi \acrshort{http} request mẫu từ mô-đun \textbf{Intruder} của Burp Suite đến công cụ \textbf{webfuzzer} theo định dạng JSON như Đoạn mã \ref{lst:base-request-format} dưới đây, quá trình chọn và gửi request mẫu sẽ được trình bày ở \textbf{Phụ lục A} của luận văn.
+Phần mở rộng Burp Suite cho phép gửi \acrshort{http} request mẫu từ mô-đun \texttt{Intruder} của Burp Suite đến công cụ \textbf{webfuzzer} theo định dạng JSON như Đoạn mã \ref{lst:base-request-format} dưới đây, quá trình chọn và gửi request mẫu sẽ được trình bày ở \textbf{Phụ lục A} của luận văn.
 \begin{lstlisting}[style=ES6, label={lst:base-request-format}, caption={Cấu trúc của một HTTP request mẫu được gửi từ phần mở rộng Burp Suite}]
 {
     "python": { 
         "url":"http://testphp.vulnweb.com:80/search.php?test=query",
         "cookies":"",
-        "headers":{ 
+        "headers": { 
             "User-Agent":"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0",
             "Accept":"text/html,application/xhtml+xml,application/xml; q=0.9,*/*;q=0.8",
             "Accept-Language":"en-US,en;q=0.5",
@@ -20,7 +23,7 @@ Phần mở rộng Burp Suite cho phép gửi \acrshort{http} request mẫu từ
             "Referer":"http://testphp.vulnweb.com/search.php?test=query",
             "Upgrade-Insecure-Requests":"1"
         },
-        "data":{ 
+        "data": { 
             "searchFor":"\xa7a\xa7",
             "goButton":"go"
         },
@@ -63,13 +66,12 @@ Các biến môi trường (environment variables) được thiết lập để 
             {}&{}&ngay khi thực thi xong yêu cầu hiện tại\\
             \addlinespace
             encodeUrl&Boolean&Encode \acrshort{url} của \acrshort{http} request kiểm thử gửi đi\\
+            \addlinespace
+            verbose&Boolean&Hiển thị thêm thông tin chi tiết trong quá trình\\
+            {}&{}&hoạt động của backend trên terminal\\
         \midrule[0.3pt]\bottomrule[1pt]
     \end{tabular}
 \end{table}
-\subsection{Giao diện lập trình ứng dụng - API}
-
-\subsection{Kết nối đến dịch vụ MySQL của hệ điều hành}
-
 \subsection{Cấu hình kiểm thử}
 Điểm chung của những lỗ hổng bảo mật đã giới thiệu ở \textbf{Chương 3} là đều có thể bị khai thác bằng dữ liệu đầu vào từ phía người dùng. Vì thế, ta có thể phát hiện các lỗ hổng này bằng cách thử gửi nhiều dạng payload kiểm thử theo các tham số của \acrshort{http} request và phân tích phản hồi của máy chủ trong response trả về, việc làm này đặc biệt phù hợp với phương pháp fuzzing. Cụ thể giới hạn và phương pháp phát hiện của ứng dụng \textbf{webfuzzer} đối với từng lớp lỗ hổng như sau.
 \begin{itemize}
@@ -91,59 +93,11 @@ Cụ thể cấu hình được áp dụng trong ứng dụng và biểu thức 
         "3": { "label": "Remote Code Execution", "time": 10, "match": "", "payloadFile": "rce.txt", "matchFile": ["root:x", "371337", "99cebf4d56e5168a1915dd72213db9eb"], "regex": "" }
     }
 \end{lstlisting}
-Các cấu hình kiểm thử được quản lý bằng id dạng số, được định nghĩa và cung cấp từ phía backend thông qua \acrshort{api} để thống nhất giữa ba thành phần của hệ thống trong quá trình thực thi và lưu trữ. Các cấu hình này thường được chúng tôi sử dụng trong quá trình tìm lỗ hổng bảo mật trên các ứng dụng web bằng Burp Suite, chúng tôi sử dụng lại những cấu hình này cho việc kiểm thử ở ứng dụng webfuzzer để tiện so sánh và đánh giá kết quả hiện thực ứng dụng. Vì gặp khó khăn trong việc truyền biểu thức chính quy trong Node.js qua lại giữa \acrshort{ui} và cơ sở dữ liệu (bao gồm việc chuỗi hóa để lưu vào cơ sở dữ liệu và tái cấu trúc biểu thức chính quy để kiểm thử trên backend) nên hiện tại các cấu hình trên đang được thiết lập dưới dạng biến môi trường. Ứng dụng chưa hỗ trợ việc sửa đổi cấu hình kiểm thử từ phía \acrshort{ui}.
+Các cấu hình kiểm thử được quản lý bằng id dạng số, được định nghĩa và cung cấp từ phía backend thông qua \acrshort{api} để thống nhất giữa ba thành phần của hệ thống trong quá trình thực thi và lưu trữ. Các cấu hình này thường được chúng tôi sử dụng trong quá trình tìm lỗ hổng bảo mật trên các ứng dụng web bằng Burp Suite, chúng tôi sử dụng lại những cấu hình này cho việc kiểm thử ở ứng dụng webfuzzer để tiện so sánh và đánh giá kết quả hiện thực ứng dụng. Vì gặp khó khăn trong việc truyền biểu thức chính quy trong Node.js qua lại giữa \acrshort{ui} và cơ sở dữ liệu (bao gồm việc chuỗi hóa để lưu vào cơ sở dữ liệu và tái cấu trúc biểu thức chính quy để kiểm thử trên backend) nên hiện tại các cấu hình trên đang được thiết lập dưới dạng biến môi trường. Các tập tin payload được phân loại và lưu trữ trong thư mục \texttt{payloads} ở thư mục gốc mã nguồn backend, mỗi payload nằm trên từng dòng riêng biệt, thuận lợi cho việc đọc payload từ phía mô-đun kiểm thử. Ứng dụng chưa hỗ trợ việc sửa đổi cấu hình kiểm thử từ phía \acrshort{ui}.
 \subsection{Mô-đun kiểm thử}
-Đề mục này trình bày chi tiết quá trình hiện thực mô-đun kiểm thử được 
-\subsubsection{Mô-đun phân tích request mẫu}
-\subsubsection{Mô-đun xây dựng \acrshort{http} request kiểm thử}
-\subsubsection{Các mô-đun kiểm thử}
-\subsubsection{Mô-đun lưu trữ kết quả kiểm thử}
-\section{Giao diện người dùng}
-\subsection{Trang bảng điều khiển}
-\FloatBarrier
-\begin{sidewaysfigure}[!htb]
-    \centering
-        \includegraphics[scale=0.45,keepaspectratio=true]{images/dashboard-ui.png}
-    \caption{Giao diện trang bảng điều khiển ở UI ứng dụng webfuzzer}
-    \label{fig:dashboard-ui}
-\end{sidewaysfigure}
-\subsection{Trang kết quả kiểm thử}
-\FloatBarrier
-\begin{sidewaysfigure}[!htb]
-    \centering
-        \includegraphics[scale=0.44,keepaspectratio=true]{images/result-ui.png}
-    \caption{Giao diện trang kết quả kiểm thử ở UI ứng dụng webfuzzer}
-    \label{fig:result-ui-ui}
-\end{sidewaysfigure}
-\subsection{Thanh điều hướng}
-\section{Cơ sở dữ liệu}
-Dựa vào thiết kế đã đề ra ở \textbf{Chương 5}, chúng tôi hiện thực cấu trúc cơ sở dữ liệu của ứng dụng webfuzzer gồm ba bảng chính. Bảng \ref{tab:db-tables} dưới đây mô tả tên và chức năng của từng bảng trong lược đồ.
-\begin{table}[ht]
-    \centering
-    \caption{Các bảng trong lược đồ quan hệ}
-    \label{tab:db-tables}
-    \begin{tabular}[ht]{lll}
-        \toprule[1pt]\midrule[0.3pt]
-            \textbf{Tên}& &\textbf{Mô tả}\\ 
-        \midrule
-            Endpoint& &Bảng Endpoint lưu lại các request mẫu mục tiêu được gửi đến máy chủ \\
-            {}& &từ phần mở rộng Burp Suite\\
-            \addlinespace
-            Request& &Bảng Request lưu những yêu cầu kiểm thử một request mẫu \\
-            {}& &trong bảng Endpoint của người dùng\\
-            \addlinespace
-            Result& &Bảng Result lưu kết quả kiểm thử chi tiết \\
-            {}& &ứng với mỗi yêu cầu kiểm thử trong bảng Request\\
-            \addlinespace
-        \midrule[0.3pt]\bottomrule[1pt]
-    \end{tabular}
-\end{table}
-\FloatBarrier
-Hình \ref{fig:db-schema} dưới đây mô tả quan hệ giữa các bảng trong lược đồ.
-\begin{figure}[H]
-  \centering
-    \includegraphics[width=0.75\textwidth,keepaspectratio=true]{images/database-design.png}
-  \caption{Sơ đồ mối quan hệ giữa các bảng trong lược đồ}
-  \label{fig:db-schema}
-\end{figure}
-Bảng \texttt{Endpoint} lưu trữ \acrshort{http} request mẫu được gửi từ phần mở rộng Burp Suite đến backend thông qua API \colorbox{gray!30}{\texttt{POST /}}. Request mẫu đó chứa dưới dạng chuỗi dữ liệu JSON trong trường \texttt{BaseRequest}. Trường \texttt{Url} chứa riêng \acrshort{url} của điểm cuối ứng dụng web mục tiêu để thuận lợi trong việc lọc ra những yêu cầu kiểm thử của cùng một trang web thông qua API \colorbox{gray!30}{\texttt{POST /target/search}}. Trường \texttt{Hash} chứa giá trị băm của chuỗi \texttt{BaseRequest}, đảm bảo không lưu hai request mẫu y hệt nhau gây dư thừa dữ liệu. Bảng \texttt{Request} chứa thông tin của các yêu cầu kiểm thử, trong đó trường \texttt{IdEndpoint} là khoá ngoại tham chiếu tới khoá chính \texttt{Id} của bảng \texttt{Endpoint} và trường \texttt{IdResult} là khoá ngoại tham chiếu tới khoá chính \texttt{Id} của bảng \texttt{Result} chứa kết quả kiểm thử (trong trường hợp có lỗ hổng). Mỗi bản ghi trong bảng \texttt{Request} chứa \acrshort{http} request mẫu gửi đến các điểm cuối của ứng dụng web mục tiêu, tập các lỗ hổng cần kiểm thử, trạng thái, và kết quả kiểm thử tương ứng, bao gồm danh sách lỗ hổng của điểm cuối đó và các payload phát hiện được. Trường \texttt{BaseRequest} của bảng \texttt{Endpoint}, trường \texttt{VulnTypes} của bảng \texttt{Request} và \texttt{Result} của bảng \texttt{Result} là các trường có kiểu chuỗi, chứa các giá trị kiểu đối tượng JSON đã được chuỗi hóa như đã đề cập trong phần thiết kế kiến trúc cơ sở dữ liệu ở trên.
+Đề mục này trình bày chi tiết quá trình hiện thực mô-đun kiểm thử qua 4 bước đã được thiết kế ở \textbf{Chương 5}. Mô-đun này mô phỏng lại một phần chức năng \texttt{Intruder} của Burp Suite với chiến thuật kiểm thử mặc định \texttt{Sniper}. Dữ liệu đầu vào của toàn bộ mô-đun kiểm thử gồm có cấu hình kiểm thử mặc định, các tập tin payload, thông tin của yêu cầu kiểm thử (bao gồm \acrshort{http} request mẫu và các loại lỗ hổng cần kiểm thử). Đầu ra của mô-đun này là danh sách các lỗ hổng mà điểm cuối của ứng dụng web mục tiêu mắc phải kèm theo các payload phát hiện được lỗ hổng. Dữ liệu đầu vào trước tiên được đưa đến mô-đun phân tích request mẫu.\par
+\textbf{Mô-đun phân tích request mẫu (\texttt{requestParser})} đầu tiên sẽ tìm những vị trí cần chèn payload trên chuỗi request mẫu. 
+
+\textbf{Mô-đun xây dựng \acrshort{http} request kiểm thử (\texttt{requestBuilder})}
+\textbf{Các mô-đun kiểm thử (\texttt{fuzzers})}
+\textbf{Mô-đun lưu trữ kết quả kiểm thử (\texttt{updateFuzzingLog})}

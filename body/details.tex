@@ -7,7 +7,7 @@ Các đối tượng kiểm thử (\acrshort{http} request mẫu) sẽ được 
   \caption{Sử dụng mô-đun Proxy của Burp Suite để bắt HTTP request}
   \label{fig:burp-proxy}
 \end{figure}
-Việc tạo request mẫu để gửi cho \textbf{webfuzzer} tiếp tục bằng bước chuyển tiếp request từ \textbf{Proxy} đến mô-đun \textbf{Intruder} để chọn tiếp tham số cần kiểm thử. Mô-đun \textbf{Intruder} chuyên dùng để đánh dấu các vị trí sẽ được thay thế bằng payload bằng cách thêm hoặc bỏ các kí tự ``\texttt{\$}'' bao quanh giá trị của tham số, sau đó chọn chiến lược tấn công (sniper, cluster bomb,...) để gửi đến ứng dụng web mục tiêu. Chúng tôi tận dụng hai mô-đun \textbf{Proxy} và \textbf{Intruder} này để chọn ra đối tượng kiểm thử cho \textbf{webfuzzer}, bao gồm mẫu các tiêu đề \acrshort{http}, đích đến và các tham số cần kiểm thử như Hình \ref{fig:burp-intruder} dưới đây.
+Việc tạo request mẫu để gửi cho \textbf{webfuzzer} tiếp tục bằng bước chuyển tiếp request từ \textbf{Proxy} đến mô-đun \texttt{Intruder} để chọn tiếp tham số cần kiểm thử. Mô-đun \texttt{Intruder} chuyên dùng để đánh dấu các vị trí sẽ được thay thế bằng payload bằng cách thêm hoặc bỏ các kí tự ``\texttt{\$}'' bao quanh giá trị của tham số, sau đó chọn chiến lược tấn công (sniper, cluster bomb,...) để gửi đến ứng dụng web mục tiêu. Chúng tôi tận dụng hai mô-đun \textbf{Proxy} và \texttt{Intruder} này để chọn ra đối tượng kiểm thử cho \textbf{webfuzzer}, bao gồm mẫu các tiêu đề \acrshort{http}, đích đến và các tham số cần kiểm thử như Hình \ref{fig:burp-intruder} dưới đây.
 \begin{figure}[H]
   \centering
     \includegraphics[width=0.75\textwidth,keepaspectratio=true]{images/burp-intruder.png}
@@ -50,7 +50,7 @@ public void run() {
     BurpExtender.this.callbacks.addSuiteTab((ITab)BurpExtender.this);
 }
 \end{lstlisting}
-\textbf{Về chức năng}, phần mở rộng này nhận dữ liệu đầu vào là thông tin địa chỉ IP và port của máy chủ công cụ \textbf{webfuzzer}, và nội dung của request mẫu từ mô đun \textbf{Intruder} được hệ thống lại dưới định dạng JSON như sau.\\
+\textbf{Về chức năng}, phần mở rộng này nhận dữ liệu đầu vào là thông tin địa chỉ IP và port của máy chủ công cụ \textbf{webfuzzer}, và nội dung của request mẫu từ mô đun \texttt{Intruder} được hệ thống lại dưới định dạng JSON như sau.\\
 \begin{lstlisting}[language=json,firstnumber=1]
 "burp":{ 
     "request":"UE9TVCAvc2VhcmNoLnBocD90Z...VhcmNoRm9yPadhpyZnb0J1dHRvbj1nbw==",
@@ -94,7 +94,7 @@ public IHttpRequestResponse makeRequest(URL uRL, String string) {
     }
 }
 \end{lstlisting}
-Kết quả hiện thực của phần mở rộng này là cho phép gửi \acrshort{http} request mẫu từ mô-đun \textbf{Intruder} đến công cụ \textbf{webfuzzer} đã được format lại theo định dạng JSON dưới đây.\\
+Kết quả hiện thực của phần mở rộng này là cho phép gửi \acrshort{http} request mẫu từ mô-đun \texttt{Intruder} đến công cụ \textbf{webfuzzer} đã được format lại theo định dạng JSON dưới đây.\\
 \begin{lstlisting}[language=json,firstnumber=1]
 "python":{ 
     "url":"http://testphp.vulnweb.com:80/search.php?test=query",
@@ -123,14 +123,14 @@ Kết quả hiện thực của phần mở rộng này là cho phép gửi \acr
 \section{Máy chủ}
 
 \subsection{Mô-đun xây dựng HTTP request}
-Mô-đun này nhận vào request mẫu chứa đầy đủ thông tin và các vị trí cần chèn payload từ mô-đun socket listener ở trên. Đầu tiên mô-đun này sẽ tạo ra thêm các request mẫu dựa trên request mẫu nhận được sao cho trong một request chỉ chứ một vị trí chèn payload. Giả sử trường \texttt{data} trong request mẫu có giá trị như sau.\\
+Mô-đun này nhận vào request mẫu chứa đầy đủ thông tin và các vị trí cần chèn payload từ mô-đun socket listener ở trên. Đầu tiên mô-đun này sẽ tạo ra thêm các request mẫu dựa trên request mẫu nhận được sao cho trong một request chỉ chứa một vị trí chèn payload. Giả sử trường \texttt{data} trong request mẫu có giá trị như sau.\\
 \begin{lstlisting}[language=json,firstnumber=1]
 "data":{ 
     "searchFor":"\xa7a\xa7",
     "goButton":"\xa7go\xa7"
 }
 \end{lstlisting}
-Lúc này có hai chỗ cần chèn payload vào, đó là giá trị của trường \texttt{searchFor} và \texttt{goButton}. Trước khi tiến hành chèn payload, mô-đun này sẽ tách request mẫu thành hai request mẫu riêng, mỗi request chứa một vị trí chèn payload. Sau đó mới lần lượt chèn các payload cần kiểm thử vào từng request để dựng thành một HTTP request hoàn chỉnh. Chiến lược này tương đương với chiến lược \texttt{sniper} của mô-đun \textbf{Intruder} của Burp Suite. Đoạn mã Python dưới đây hiện thực quá trình chèn payload và thiết kế hàng đợi của mô-đun này.\\
+Lúc này có hai chỗ cần chèn payload vào, đó là giá trị của trường \texttt{searchFor} và \texttt{goButton}. Trước khi tiến hành chèn payload, mô-đun này sẽ tách request mẫu thành hai request mẫu riêng, mỗi request chứa một vị trí chèn payload. Sau đó mới lần lượt chèn các payload cần kiểm thử vào từng request để dựng thành một HTTP request hoàn chỉnh. Chiến lược này tương đương với chiến lược \texttt{sniper} của mô-đun \texttt{Intruder} của Burp Suite. Đoạn mã Python dưới đây hiện thực quá trình chèn payload và thiết kế hàng đợi của mô-đun này.\\
 \begin{python}
 def prepareRequest(request, _cfg):
     global queue

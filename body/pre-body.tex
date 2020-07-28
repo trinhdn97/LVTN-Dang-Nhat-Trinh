@@ -1,5 +1,4 @@
 \chapter{Phạm vi và hướng phát triển ứng dụng webfuzzer}
-Chương này so sánh \textbf{webfuzzer} với các công cụ, dịch vụ và khung thức kiểm thử hiện đang được sử dụng trong cộng đồng.\par
 Trong phạm vi luận văn tốt nghiệp này, tôi sẽ áp dụng phương pháp kiểm thử fuzzing dưới dạng kiểm thử hộp đen để hiện thực công cụ \textbf{webfuzzer}. Ngoài khả năng tự động hóa cao, việc áp dụng phương pháp này sẽ đem lại nhiều lợi ích khác.
 \begin{itemize}
     \item Linh hoạt trong việc kiểm thử nhiều ứng dụng web sử dụng các công nghệ, mô hình, khung thức phát triển phần mềm khác nhau, cũng như cho phép kiểm thử số lượng lớn ứng dụng web trong một khoảng thời gian ngắn.
@@ -9,7 +8,7 @@ Trong phạm vi luận văn tốt nghiệp này, tôi sẽ áp dụng phương p
 \end{itemize}
 Tương tự như trong lĩnh vực kiểm thử phần mềm, việc áp dụng phương pháp kiểm thử fuzzing dưới dạng kiểm thử hộp đen trong quá trình kiểm thử bảo mật ứng dụng web cũng sẽ có một số hạn chế như sau.
 \begin{itemize}
-    \item Do không nắm được mã nguồn của ứng dụng web nên chiến thuật tốt nhất là ta chỉ nên tập trung kiểm tra những chỗ thường phát sinh lỗ hổng nhất, hoặc "đoán mò" và vượt qua (bypass) cách thức phòng thủ của ứng dụng bằng việc thử sai và sửa đổi làm rối (tampering) dữ liệu kiểm thử.
+    \item Do không nắm được mã nguồn của ứng dụng web nên chiến thuật tốt nhất là ta chỉ nên tập trung kiểm tra những chỗ thường phát sinh lỗ hổng nhất, hoặc "đoán mò" và vượt qua (bypass) cách thức phòng thủ của ứng dụng bằng việc thử sai và làm rối (tampering) dữ liệu kiểm thử.
     \item Số lượng trường hợp kiểm thử kết hợp với các kĩ thuật bypass đã biết là quá lớn, yêu cầu nhiều kinh nghiệm thực tế của người lập trình để chọn lọc và viết ra được một công cụ nhanh và ổn định, tối ưu hóa tài nguyên máy tính và thời gian thực thi. Ta buộc phải đánh đổi thời gian và tài nguyên đó hoặc chấp nhận kiểm thử trên một tập dữ liệu nhỏ hơn chỉ chứa những trường hợp thường gặp nhất.
     \item Phải có hiểu biết sâu rộng về các lỗ hổng bảo mật, đồng thời thường xuyên cập nhật các trường hợp kiểm thử và kĩ thuật tấn công/phòng thủ mới để bổ sung vào công cụ.
 \end{itemize}
@@ -18,7 +17,8 @@ Hơn nữa, vấn đề đạo đức nghề nghiệp phải luôn luôn đượ
 \begin{itemize}
     \item Hiện thực chức năng thường dùng nhất trong 
     \item Việc chuyển đổi cùng một cấu hình kiểm thử từ thẻ này sang thẻ khác khá phiền phức, nhu cầu định ra một cấu hình kiểm thử mặc định rồi dùng để kiểm thử nhiều request mẫu tương tự nhau là cần thiết và giúp tiết kiệm thời gian hơn.
-    \item Dễ dàng triển khai ứng dụng kiểm thử ở các dịch vụ cung cấp máy chủ ảo hóa (virtual private service - \acrshort{vps}. Việc kiểm thử bằng Burp Suite trên máy tính cá nhân tiêu tốn khá nhiều tài nguyên, cản trở công việc. Nhu cầu .. Việc này cũng giúp tránh được nguy cơ địa chỉ IP của máy tính cá nhân bị block theo vùng địa lý hoặc bởi các chính sách kiểm soát lưu lượng truy cập bởi ứng dụng web mục tiêu do gửi quá nhiều request đến trong một khoảng thời gian ngắn, giúp người kỹ sư kịp thời định ra phương hướng khác để tiếp cận mục tiêu.
+    \item Dễ dàng triển khai ứng dụng kiểm thử ở các dịch vụ cung cấp máy chủ ảo hóa (virtual private service - \acrshort{vps}. Việc kiểm thử bằng Burp Suite trên máy tính cá nhân (đặc biệt là tính năng \texttt{Intruder}) tiêu tốn khá nhiều tài nguyên, cản trở công việc, dẫn đến nhu cầu tách riêng chức năng này để triển khai trên một máy chủ độc lập. Việc này cũng giúp tránh được nguy cơ địa chỉ IP của máy tính cá nhân bị block theo vùng địa lý hoặc bởi các chính sách kiểm soát lưu lượng truy cập bởi ứng dụng web mục tiêu do gửi quá nhiều request đến trong một khoảng thời gian ngắn, giúp người kỹ sư kịp thời định ra phương hướng khác để tiếp cận mục tiêu.
+    \item Cần có một cơ sở dữ liệu để lưu trữ kết quả kiểm thử,
 \end{itemize}
 
 
