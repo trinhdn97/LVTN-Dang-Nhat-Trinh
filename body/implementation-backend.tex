@@ -8,27 +8,18 @@ Chương này mô tả chi tiết hiện thực của kiến trúc hệ thống 
 Phần mở rộng Burp Suite cho phép gửi \acrshort{http} request mẫu từ mô-đun \texttt{Intruder} của Burp Suite đến công cụ \textbf{webfuzzer} theo định dạng JSON như Đoạn mã \ref{lst:base-request-format} dưới đây, quá trình chọn và gửi request mẫu sẽ được trình bày ở \textbf{Phụ lục A} của luận văn.
 \begin{lstlisting}[style=ES6, label={lst:base-request-format}, caption={Cấu trúc của một HTTP request mẫu được gửi từ phần mở rộng Burp Suite}]
 {
-    "python": { 
-        "url":"http://testphp.vulnweb.com:80/search.php?test=query",
-        "cookies":"",
-        "headers": { 
-            "User-Agent":"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0",
-            "Accept":"text/html,application/xhtml+xml,application/xml; q=0.9,*/*;q=0.8",
-            "Accept-Language":"en-US,en;q=0.5",
-            "Accept-Encoding":"gzip, deflate",
-            "Content-Type":"application/x-www-form-urlencoded",
-            "Origin":"http://testphp.vulnweb.com",
-            "DNT":"1",
-            "Connection":"close",
-            "Referer":"http://testphp.vulnweb.com/search.php?test=query",
-            "Upgrade-Insecure-Requests":"1"
-        },
-        "data": { 
-            "searchFor":"\xa7a\xa7",
-            "goButton":"go"
-        },
-        "method":"post"
-    }
+    "url": "http://testphp.vulnweb.com:80/showimage.php?file=\xa7./pictures/1.jpg\xa7",
+    "cookies": "",
+    "headers": {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate",
+        "DNT": "1",
+        "Connection": "close",
+        "Upgrade-Insecure-Requests": "1"
+    },
+    "method": "get"
 }
 \end{lstlisting}
 Chuỗi ``\texttt{\textbackslash xa7}'' trong trường \texttt{data.searchFor} biểu thị kí tự ``\$'' trong request mẫu. Các kí tự này thường nằm ở trường \texttt{data} hoặc \texttt{url} trong đoạn dữ liệu JSON để đánh dấu những vị trí chèn payload để ứng dụng web xử lí. 
@@ -95,8 +86,9 @@ Cụ thể cấu hình được áp dụng trong ứng dụng và biểu thức 
 \end{lstlisting}
 Các cấu hình kiểm thử được quản lý bằng id dạng số, được định nghĩa và cung cấp từ phía backend thông qua \acrshort{api} để thống nhất giữa ba thành phần của hệ thống trong quá trình thực thi và lưu trữ. Các cấu hình này thường được chúng tôi sử dụng trong quá trình tìm lỗ hổng bảo mật trên các ứng dụng web bằng Burp Suite, chúng tôi sử dụng lại những cấu hình này cho việc kiểm thử ở ứng dụng webfuzzer để tiện so sánh và đánh giá kết quả hiện thực ứng dụng. Vì gặp khó khăn trong việc truyền biểu thức chính quy trong Node.js qua lại giữa \acrshort{ui} và cơ sở dữ liệu (bao gồm việc chuỗi hóa để lưu vào cơ sở dữ liệu và tái cấu trúc biểu thức chính quy để kiểm thử trên backend) nên hiện tại các cấu hình trên đang được thiết lập dưới dạng biến môi trường. Các tập tin payload được phân loại và lưu trữ trong thư mục \texttt{payloads} ở thư mục gốc mã nguồn backend, mỗi payload nằm trên từng dòng riêng biệt, thuận lợi cho việc đọc payload từ phía mô-đun kiểm thử. Ứng dụng chưa hỗ trợ việc sửa đổi cấu hình kiểm thử từ phía \acrshort{ui}.
 \subsection{Mô-đun kiểm thử}
-Đề mục này trình bày chi tiết quá trình hiện thực mô-đun kiểm thử qua 4 bước đã được thiết kế ở \textbf{Chương 5}. Mô-đun này mô phỏng lại một phần chức năng \texttt{Intruder} của Burp Suite với chiến thuật kiểm thử mặc định \texttt{Sniper}. Dữ liệu đầu vào của toàn bộ mô-đun kiểm thử gồm có cấu hình kiểm thử mặc định, các tập tin payload, thông tin của yêu cầu kiểm thử (bao gồm \acrshort{http} request mẫu và các loại lỗ hổng cần kiểm thử). Đầu ra của mô-đun này là danh sách các lỗ hổng mà điểm cuối của ứng dụng web mục tiêu mắc phải kèm theo các payload phát hiện được lỗ hổng. Dữ liệu đầu vào trước tiên được đưa đến mô-đun phân tích request mẫu.\par
-\textbf{Mô-đun phân tích request mẫu (\texttt{requestParser})} đầu tiên sẽ tìm những vị trí cần chèn payload trên chuỗi request mẫu. 
+Đề mục này trình bày chi tiết quá trình hiện thực mô-đun kiểm thử qua 4 bước đã được thiết kế ở \textbf{Chương 5}. Mô-đun này mô phỏng lại một phần chức năng \texttt{Intruder} của Burp Suite với chiến thuật kiểm thử mặc định \texttt{Sniper}. Dữ liệu đầu vào của toàn bộ mô-đun kiểm thử gồm có cấu hình kiểm thử mặc định, các tập tin payload, thông tin của yêu cầu kiểm thử (bao gồm \acrshort{http} request mẫu và các loại lỗ hổng cần kiểm thử). Đầu ra của mô-đun này là danh sách các lỗ hổng mà điểm cuối của ứng dụng web mục tiêu mắc phải kèm theo các payload phát hiện được lỗ hổng. Dữ liệu đầu vào trước tiên được đưa đến mô-đun phân tích request mẫu. Để mô tả quá trình hiện thực của mô-đun kiểm thử, chúng tôi mô phỏng việc kiểm thử request mẫu trong Đoạn mã \ref{lst:base-request-format} sau với lỗ hổng \acrshort{lfi}.
+\end{lstlisting}
+\textbf{Mô-đun phân tích request mẫu (\texttt{requestParser})} đầu tiên sẽ tìm những vị trí cần chèn payload trong chuỗi request mẫu, được đánh dấu bằng cặp ``\texttt{\textbackslash xa7}''. Chiến thuật \texttt{Sniper} tương ứng với việc thay lần lượt từng payload vào mỗi vị trí một lần. 
 
 \textbf{Mô-đun xây dựng \acrshort{http} request kiểm thử (\texttt{requestBuilder})}
 \textbf{Các mô-đun kiểm thử (\texttt{fuzzers})}
