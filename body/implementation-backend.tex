@@ -136,6 +136,126 @@ Sau khi có danh sách khuôn mẫu và payload, ta lần lượt thay từng pa
     \item \textbf{req} chứa request mẫu có chứa payload ở dạng chuỗi.
     \item \textbf{timeout} chứa thời gian tối đa đợi ứng dụng web mục tiêu trả về response đối với request này.
 \end{itemize}
-\textbf{Mô-đun xây dựng \acrshort{http} request kiểm thử (\texttt{requestBuilder})} sẽ phân tích (parse) chuỗi \texttt{req} thành đối tượng JSON để tạo thành \acrshort{http}
-\textbf{Các mô-đun kiểm thử (\texttt{fuzzers})}\\
-\textbf{Mô-đun lưu trữ kết quả kiểm thử (\texttt{updateFuzzingLog})}
+\textbf{Mô-đun xây dựng \acrshort{http} request kiểm thử (\texttt{requestBuilder})} sử dụng thư viện Request \parencite{request-npm} hỗ trợ dựng \acrshort{http} request kiểm thử, gửi đến ứng dụng web mục tiêu và nhận response tương ứng trả về. Mô-đun này đầu tiên sẽ phân tích (parse) chuỗi \texttt{req} trong request mẫu thành đối tượng JSON, cung cấp những tham số cần thiết để dựng request. Đoạn mã \ref{lst:example-request-option} sau là một ví dụ về các tham số này.
+\begin{lstlisting}[style=ES6, label={lst:example-request-option}, caption={Ví dụ về tham số xây dựng request kiểm thử}]
+{ 
+  method: 'get',
+  url: 'http://testphp.vulnweb.com:80/showimage.php?file=..//etc/passwd',
+  headers: { 
+    'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0',
+    Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Accept-Encoding': 'gzip, deflate',
+    DNT: '1',
+    Connection: 'close',
+    'Upgrade-Insecure-Requests': '1' 
+  },
+  form: undefined,
+  gzip: true,
+  resolveWithFullResponse: true,
+  time: true,
+  simple: false,
+  followAllRedirects: true
+}
+\end{lstlisting}
+Các tham số này một phần được kế thừa từ request mẫu, bao gồm \texttt{url, method, headers, cookies, data} (form - nội dung kèm theo những request POST). Ngoài ra còn có một số tham số quan trọng khác như sau.
+\begin{itemize}
+  \item \textbf{resolveWithFullResponse} nhằm trả về đầy đủ các thuộc tính của đối tượng response trả về, phục vụ cho việc kiểm thử.
+  \item \textbf{gzip} chỉ thị tự động thêm kiểu nén dữ liệu thông dụng \texttt{gzip} vào trường \texttt{Accept-Encoding} của headers nếu chưa có.
+  \item \textbf{time} chỉ thị ghi lại thời gian phản hồi của máy chủ (elapsed time) kể từ thời điểm gửi request kiểm thử, phục vụ cho việc kiểm tra lỗ hổng time-based \acrshort{sqli}.
+  \item \textbf{timeout} là thời gian chờ response phản hồi tối đa, đơn vị tính là mili giây, nếu thời gian phản hồi của máy chủ lâu hơn tham số này thì mã lỗi \texttt{ESOCKETTIMEDOUT} sẽ được đẩy ra. Tham số này kế thừa từ thuộc tính \texttt{time} của cấu hình kiểm thử lỗ hổng tương ứng. Trong trường hợp kiểm thử lỗ hổng time-based \acrshort{sqli}, thuộc tính này giúp tiết kiệm thời gian kiểm thử rất nhiều. Các payload khai thác lỗi này thường kéo thời gian thực thi request ở phía máy chủ web mục tiêu lên đến 20-60 giây, trong khi chỉ cần khoảng 10 giây như cấu hình kiểm thử là ta đã đủ cơ cở đã kết luận điểm cuối này mắc lỗi.
+\end{itemize}
+Sau khi dựng và gửi request kiểm thử có kèm payload đến ứng dụng web mục tiêu, chúng tôi lọc bớt một vài thuộc tính của response trả về, đồng thời thêm một vài thuộc tính phục vụ cho việc xác nhận lỗi của mô-đun kiểm thử (\texttt{fuzzers}). Đoạn mã \ref{lst:example-response} là một ví dụ response trả về, bao gồm những thuộc tính như mô tả dưới đây.
+\begin{lstlisting}[style=ES6, label={lst:example-response}, caption={Ví dụ về response phản hồi từ ứng dụng web mục tiêu}]
+{
+  payload: '..//etc/passwd',
+  vulnId: '1',
+  body: '\nWarning: fopen(): Unable to access ..//etc/passwd in /hj/var/www/showimage.php on line 7\n\nWarning: fopen(..//etc/passwd): failed to open stream: No such file or directory in /hj/var/www/showimage.php on line 7\n\nWarning: fpassthru() expects parameter 1 to be resource, boolean given in /hj/var/www/showimage.php on line 13\n',
+  statusCode: 200,
+  elapsedTime: 353,
+  contentLength: 323,
+  headers: {
+    server: 'nginx/1.4.1',
+    date: 'Sat, 02 May 1970 19:09:17 GMT',
+    'content-type': 'image/jpeg',
+    'transfer-encoding': 'chunked',
+    connection: 'close',
+    'x-powered-by': 'PHP/5.3.10-1~lucid+2uwsgi2'
+  }
+}
+\end{lstlisting}
+\begin{itemize}
+  \item \textbf{payload} là payload đi kèm theo request kiểm thử tương ứng.
+  \item \textbf{vulnId} là ID của loại lỗ hổng đang kiểm thử.
+  \item \textbf{statusCode} là mã trạng thái \acrshort{http} của response trả về.
+  \item \textbf{elapsedTime} là thời gian trả về response từ khi gửi request kiểm thử. Nếu có mã lỗi \texttt{ESOCKETTIMEDOUT} được đẩy ra trong quá trình chờ response thì thuộc tính này sẽ mang giá trị của tham số \texttt{timeout} khi xây dựng request.
+  \item \textbf{contentLength} là độ dài của phần thân (body) của response.
+  \item \textbf{headers} chứa các headers của response.
+\end{itemize}
+\textbf{Các mô-đun kiểm thử (\texttt{fuzzers})} sẽ đảm nhiệm việc so trùng các chuỗi và biểu thức chính quy trên trường \texttt{body} của response trả về, cộng với việc kiểm tra thời gian phản hồi ở trường \texttt{elapsedTime} của response đối với trường hợp kiểm thử lỗ hổng time-based \acrshort{sqli}. Đoạn mã \ref{lst:fuzzer-implementation} hiện thực phần so khớp và kiểm tra thời gian phản hồi dựa trên cấu hình kiểm thử. 
+\begin{lstlisting}[style=ES6, label={lst:fuzzer-implementation}, caption={Hiện thực các mô-đun kiểm thử}]
+let retList = [], timebasedResult;
+let grepObj = resp.body;
+if (config['match'] != '') {
+  for (var i in config['match']) {
+    if (grepObj.indexOf(config['match'][i]) >= 0) 
+      retList.push(config['match'][i]);
+  }
+}
+if (config['matchFile'] != '') {
+  // TODO: read match strings from file
+  let matchList = [], tmpList;
+  for (var idx in config['matchFile']) {
+    tmpList = readPayloadFile(config['matchFile'][idx]);
+    matchList = matchList.concat(tmpList);
+  }
+  for (var i in matchList)
+    if (grepObj.indexOf(matchList[i]) >= 0) 
+      retList.push(matchList[i]);
+}
+if (config['regex'] != '') {
+  for (var i in config['regex']) {
+    let matchList = grepObj.match(config['regex'][i]);
+    if (matchList && matchList.length > 0) {
+      retList.push(matchList.toString());
+    }
+  }
+}
+if (config['time'] != '') 
+  timebasedResult = resp.elapsedTime >= config['time'] * 1000;
+
+return { 
+  matchResult: retList.length === 0,
+  timebasedResult
+  matchList: retList
+};
+\end{lstlisting}
+Kết quả kiểm thử ứng với mỗi payload sẽ gồm trường \texttt{matchResult}, \texttt{timebasedResult} lần lượt ứng với kết quả so trùng và kiểm tra thời gian thực thi request. Những chuỗi khớp được đẩy vào mảng \texttt{matchList} như bằng chứng có lỗ hổng để lưu trữ vào cơ sở dữ liệu. Song song với quá trình kiểm thử, backend của ứng dụng cũng xuất ra kết quả kiểm thử trên terminal theo từng dòng, mỗi dòng ứng với một payload như Hình \ref{fig:terminal-result} sau.
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=\textwidth,keepaspectratio=true]{images/terminal-result.png}
+  \caption{Kết quả kiểm thử trên terminal backend}
+  \label{fig:terminal-result}
+\end{figure}
+Những payload phát hiện được lỗi (có xuất hiện các chuỗi khớp trong body hoặc thời gian thực thi request thỏa cấu hình kiểm thử) sẽ được đổi màu để làm nổi bật trên terminal như Hình \ref{fig:terminal-result}. Trong trường hợp trên, payload ``\texttt{../..//etc/passwd}'' khiến máy chủ web mục tiêu trả về response có body chứa chuỗi ``\texttt{root:x}''. Mỗi dòng kết quả này bao gồm các thành phần sau.
+\begin{itemize}
+  \item \textbf{Kết quả kiểm thử} được đặt trong cặp ngoặc vuông, có thể là \texttt{[passed]} trong trường hợp payload khai thác thành công lỗ hổng hoặc \texttt{[failed]} trong trường hợp payload không khai thác thành công.
+  \item \textbf{Mã trạng thái HTTP} của response trả về, thường là \texttt{200} trong trường hợp request được gửi thành công hoặc các mã lỗi \texttt{401}, \texttt{404}, \texttt{500},... khi có sự cố trong quá trình xử lí request ở ứng dụng web mục tiêu.
+  \item \textbf{Độ dài nội dung} của response trả về, \textbf{thời gian xử lí} của request tính theo giây và payload tương ứng được gửi theo request.
+\end{itemize}
+\textbf{Mô-đun lưu trữ kết quả kiểm thử (\texttt{updateFuzzingLog})} sẽ lưu trữ những payload kèm theo loại lỗ hổng phát hiện được dựa trên kết quả kiểm thử trên. Những kết quả này được lưu lại dưới dạng chuỗi vào cơ sở dữ liệu theo cấu trúc như Đoạn mã \ref{lst:example-result} sau.
+\begin{lstlisting}[style=ES6, label={lst:example-result}, caption={Cấu trúc kết quả kiểm thử}]
+{
+  "1": [
+    {
+      payload: '../..//etc/passwd',
+      payloadIdx: '0',
+      matchList: ['root:x'],
+      timebased: false
+    },
+    ...
+  ],
+  ...
+}
+\end{lstlisting}
+Kết quả kiểm thử sẽ được phân loại theo ID của mỗi loại lỗ hổng. Đối với mỗi payload phát hiện được lỗ hổng này, chúng tôi lưu trữ đầy đủ kết quả so trùng, thời gian thực thi request và vị trí chèn payload trên \acrshort{http} request mẫu, phục vụ việc trả kết quả về hiển thị trên \acrshort{ui} và hiện thực chức năng tái hiện request kiểm thử trong tương lai.
