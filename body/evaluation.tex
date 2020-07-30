@@ -17,7 +17,7 @@ Một trong những tiêu chí thể đánh giá \textbf{Tính năng thực tế
 \end{itemize}
 \textbf{Sự thông minh} của ứng dụng fuzzing cũng là một vấn đề đáng so sánh. Các trường hợp kiểm thử có được tạo ra hoặc đột biến (mutated) dựa trên các trường hợp kiểm thử có sẵn hay không, hay tất cả đêu được sinh ra ngẫu nhiên? ứng dụng có sử dụng những thuật toán tự nghiệm (heuristic) để tăng hiệu năng như kiểm tra các trường hợp biên đặc biệt hay tầm thường, áp dụng các heuristic đã được chứng minh tính hiệu quả trước đó hay không? Cuối cùng, ứng dụng có phải là một fuzzer kiểm thử dựa trên mô hình và có dễ để tạo ra một mô hình trường hợp kiểm thử hay không? Dựa theo đó tôi đánh giá sự thông minh của ứng dụng webfuzzer theo các tiêu chí sau.
 \begin{itemize}
-    \item \textbf{Dữ liệu ngẫu nhiên, đột biến hay được sinh ra từ mô hình:} Đột biến. Các trường hợp kiểm thử được cung cấp bởi ứng dụng bao phủ được nhiều trường hợp và được encode, làm rối dựa trên các trường hợp kiểm thử gốc.
+    \item \textbf{Dữ liệu ngẫu nhiên, đột biến hay được sinh ra từ mô hình:} Các trường hợp kiểm thử được xây dựng từ các danh sách payload có sẵn.
     \item \textbf{Ứng dụng có áp dụng heuristic:} Không
     \item \textbf{Sử dụng mô hình sinh trường hợp kiểm thử:} Không
 \end{itemize}

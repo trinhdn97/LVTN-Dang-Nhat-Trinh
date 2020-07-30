@@ -72,23 +72,70 @@ Các biến môi trường (environment variables) được thiết lập để 
 Các payload, biểu thức chính quy, kĩ thuật tấn công, làm rối sử dụng trong ứng dụng được tổng hợp từ kinh nghiệm của chúng tôi và tổng hợp từ các kho lưu trữ (repository) mã nguồn trên GitHub \parencite{seclist-fuzzing,0verpwn-fuzzing}, từ nhiều blog chia sẻ cũng như write-up các thử thách cướp cờ (capture the flag - CTFs) của đàn anh đi trước trong ngành, từ các tweet được các kĩ sư bảo mật hàng đầu chia sẻ trên mạng xã hội Twitter,... Sau đó các payload này sẽ được chúng tôi chọn lọc và sửa đổi cho phù hợp với phương pháp kiểm thử của ứng dụng như sau.
 \begin{itemize}
     \item Đối với các payload time-based \acrshort{sqli}, chúng tôi sử dụng các payload chứa hai loại hàm chính để hoãn thời gian thực hiện request. Cụ thể là hàm \texttt{sleep} (đối với MySQL, tương tự là \texttt{pg\_sleep} đối với PostgreSQL và \texttt{waitfor delay}, \texttt{waitfor time} đối với Microsoft SQL Server) và hàm \\\texttt{BENCHMARK(10000000,MD5('Y4T0G4M11337'))} để kéo dài thời gian thực hiện request đối với các ứng dụng web mắc lỗi này. Bên cạnh đó, với mỗi payload gốc, chúng tôi áp dụng thêm nhiều cách thức đóng ngoặc, chú thích để tránh gặp lỗi cú pháp khi thực thi đoạn mã SQL ở phía máy chủ.
-    \item Đối với các payload \acrshort{lfi}, chúng tôi thu thập 8 payload mẫu với số lượng các chuỗi ``../'' tăng dần, nhằm tăng độ sâu của đường dẫn để tiếp cận được tập tin \texttt{/etc/passwd} của máy chủ. Từ 8 payload này, chúng tôi áp dụng các kĩ thuật làm rối riêng biệt để sinh ra 264 payload khác. Các kĩ thuật này bao gồm encode các chuỗi kí tự ``../'', ``..\textbackslash'' và ``..\textbackslash /'' theo các tập kí tự (charset) ít phổ biến như ``\texttt{..\%c0\%af}'', ``\texttt{..\%252f}'', ``\texttt{\%\%32\%65}'', ``\texttt{..\%\%32\%66}'',  ``\texttt{..\%25c1\%259c}'',... để vượt qua một số kĩ thuật lọc và làm sạch dữ liệu ở phía server-side của máy chủ ứng dụng web.
+    \item Đối với các payload \acrshort{lfi}, chúng tôi thu thập 8 payload mẫu với số lượng các chuỗi ``../'' tăng dần, nhằm tăng độ sâu của đường dẫn để tiếp cận được tập tin \texttt{/etc/passwd} của máy chủ. Từ 8 payload này, chúng tôi áp dụng các kĩ thuật làm rối riêng biệt để sinh ra 264 payload khác. Các kĩ thuật này bao gồm encode các chuỗi kí tự ``../'', ``..\textbackslash'' và ``..\textbackslash /'' theo các tập kí tự (charset) ít phổ biến như ``\texttt{..\%c0\%af}'', ``\texttt{..\%252f}'', ``\texttt{\%\%32\%65}'', ``\texttt{..\%\%32\%66}'',  ``\texttt{..\%25c1\%259c}'',... để vượt qua một số kĩ thuật lọc và làm sạch dữ liệu ở phía server-side của máy chủ ứng dụng web mục tiêu.
 \end{itemize}
 Cụ thể cấu hình được áp dụng trong ứng dụng và biểu thức chính quy áp dụng trong trường hợp phát hiện lỗi \acrshort{lfi} được thể hiện ở Đoạn mã \ref{lst:default-fuzz-config} dưới đây.
 \begin{lstlisting}[style=ES6, label={lst:default-fuzz-config}, caption={Cấu hình kiểm thử mặc định}]
-    let lfiRegex1 = /Warning: include\(|Warning: unlink\(|for inclusion \(include_path=|fread\(|Failed opening required|Warning: file_get_contents\(|Fatal error: require_once\(|Warning: file_exists\(/g;
-    let lfiRegex2 = /java\.io\.FileNotFoundException|java\.lang\.Exception|java\.lang\ .IllegalArgumentException|java\.net\.MalformedURLException/g;
-    let defaultFuzzConfig = {
-        "1": { "label": "Local File Inclusion", "time": "", "match": ["root:x", "localhost"], "payloadFile": "lfi/lfi-full.txt", "matchFile": "", "regex": [lfiRegex1, lfiRegex2] },
-        "2": { "label": "Time-based SQL Injection", "time": 10, "match": "", "payloadFile": "sqli/sqli-time-based.txt", "matchFile": "", "regex": [sqliRegex] },
-        "3": { "label": "Remote Code Execution", "time": 10, "match": "", "payloadFile": "rce.txt", "matchFile": ["root:x", "371337", "99cebf4d56e5168a1915dd72213db9eb"], "regex": "" }
-    }
+let lfiRegex1 = /Warning: include\(|Warning: unlink\(|for inclusion \(include_path=|fread\(|Failed opening required|Warning: file_get_contents\(|Fatal error: require_once\(|Warning: file_exists\(/g;
+let lfiRegex2 = /java\.io\.FileNotFoundException|java\.lang\.Exception|java\.lang\ .IllegalArgumentException|java\.net\.MalformedURLException/g;
+let defaultFuzzConfig = {
+    "1": { "label": "Local File Inclusion", "time": "", "match": ["root:x", "localhost"], "payloadFile": "lfi/lfi-full.txt", "matchFile": "", "regex": [lfiRegex1, lfiRegex2] },
+    "2": { "label": "Time-based SQL Injection", "time": 10, "match": "", "payloadFile": "sqli/sqli-time-based.txt", "matchFile": "", "regex": [sqliRegex] },
+    "3": { "label": "Remote Code Execution", "time": 10, "match": "", "payloadFile": "rce.txt", "matchFile": ["root:x", "371337", "99cebf4d56e5168a1915dd72213db9eb"], "regex": "" }
+}
 \end{lstlisting}
 Các cấu hình kiểm thử được quản lý bằng id dạng số, được định nghĩa và cung cấp từ phía backend thông qua \acrshort{api} để thống nhất giữa ba thành phần của hệ thống trong quá trình thực thi và lưu trữ. Các cấu hình này thường được chúng tôi sử dụng trong quá trình tìm lỗ hổng bảo mật trên các ứng dụng web bằng Burp Suite, chúng tôi sử dụng lại những cấu hình này cho việc kiểm thử ở ứng dụng webfuzzer để tiện so sánh và đánh giá kết quả hiện thực ứng dụng. Vì gặp khó khăn trong việc truyền biểu thức chính quy trong Node.js qua lại giữa \acrshort{ui} và cơ sở dữ liệu (bao gồm việc chuỗi hóa để lưu vào cơ sở dữ liệu và tái cấu trúc biểu thức chính quy để kiểm thử trên backend) nên hiện tại các cấu hình trên đang được thiết lập dưới dạng biến môi trường. Các tập tin payload được phân loại và lưu trữ trong thư mục \texttt{payloads} ở thư mục gốc mã nguồn backend, mỗi payload nằm trên từng dòng riêng biệt, thuận lợi cho việc đọc payload từ phía mô-đun kiểm thử. Ứng dụng chưa hỗ trợ việc sửa đổi cấu hình kiểm thử từ phía \acrshort{ui}.
 \subsection{Mô-đun kiểm thử}
-Đề mục này trình bày chi tiết quá trình hiện thực mô-đun kiểm thử qua 4 bước đã được thiết kế ở \textbf{Chương 5}. Mô-đun này mô phỏng lại một phần chức năng \texttt{Intruder} của Burp Suite với chiến thuật kiểm thử mặc định \texttt{Sniper}. Dữ liệu đầu vào của toàn bộ mô-đun kiểm thử gồm có cấu hình kiểm thử mặc định, các tập tin payload, thông tin của yêu cầu kiểm thử (bao gồm \acrshort{http} request mẫu và các loại lỗ hổng cần kiểm thử). Đầu ra của mô-đun này là danh sách các lỗ hổng mà điểm cuối của ứng dụng web mục tiêu mắc phải kèm theo các payload phát hiện được lỗ hổng. Dữ liệu đầu vào trước tiên được đưa đến mô-đun phân tích request mẫu. Để mô tả quá trình hiện thực của mô-đun kiểm thử, chúng tôi mô phỏng việc kiểm thử request mẫu trong Đoạn mã \ref{lst:base-request-format} sau với lỗ hổng \acrshort{lfi}.
-\textbf{Mô-đun phân tích request mẫu (\texttt{requestParser})} đầu tiên sẽ tìm những vị trí cần chèn payload trong chuỗi request mẫu, được đánh dấu bằng cặp ``\texttt{\textbackslash xa7}''. Chiến thuật \texttt{Sniper} tương ứng với việc thay lần lượt từng payload vào mỗi vị trí một lần. 
-
-\textbf{Mô-đun xây dựng \acrshort{http} request kiểm thử (\texttt{requestBuilder})}
-\textbf{Các mô-đun kiểm thử (\texttt{fuzzers})}
+Đề mục này trình bày chi tiết quá trình hiện thực mô-đun kiểm thử qua 4 bước đã được thiết kế ở \textbf{Chương 5}. Mô-đun này mô phỏng lại một phần chức năng \texttt{Intruder} của Burp Suite với chiến thuật kiểm thử mặc định \texttt{Sniper}. Dữ liệu đầu vào của toàn bộ mô-đun kiểm thử gồm có cấu hình kiểm thử mặc định, các tập tin payload, thông tin của yêu cầu kiểm thử (bao gồm \acrshort{http} request mẫu và các loại lỗ hổng cần kiểm thử). Đầu ra của mô-đun này là danh sách các lỗ hổng mà điểm cuối của ứng dụng web mục tiêu mắc phải kèm theo các payload phát hiện được lỗ hổng (nếu có). Dữ liệu đầu vào trước tiên được đưa đến mô-đun phân tích request mẫu. Để mô tả quá trình hiện thực của mô-đun kiểm thử, chúng tôi mô phỏng việc kiểm thử request mẫu trong Đoạn mã \ref{lst:base-request-format} với lỗ hổng \acrshort{lfi}.\par
+\textbf{Mô-đun phân tích request mẫu (\texttt{requestParser})} đầu tiên sẽ tìm những vị trí cần chèn payload trong chuỗi request mẫu, được đánh dấu bằng một hoặc nhiều cặp ``\texttt{\textbackslash xa7}''. Chiến thuật \texttt{Sniper} tương ứng với việc thay lần lượt từng payload vào mỗi vị trí một lần. Đoạn mã \ref{lst:get-patterns-of-request} dưới đây tách request mẫu ra thành một danh sách các khuôn mẫu (pattern) để chèn payload vào, sao cho mỗi khuôn mẫu chỉ chứa một cặp ``\texttt{\textbackslash xa7}''.
+\begin{lstlisting}[style=ES6, label={lst:get-patterns-of-request}, caption={Trích xuất khuôn mẫu từ request mẫu}]
+let patternRegex = /\\xa7.*?\\xa7/g;
+const getPatternFromRequest = (req) => {
+  try {
+    let retList = [], match, currReq = req;
+    let count = req.match(patternRegex).length;
+    if (count === 1) retList.push(req, '');
+    else {
+      retList.push(req);
+      while (match = patternRegex.exec(currReq)) {
+        currReq = currReq.replace(match[0], match[0].replace(/\\xa7/g, ''));
+        retList.push(currReq);
+      }
+    }
+    return retList.splice(0, retList.length - 1);
+  } catch (ex) {
+    console.log("============> components => request => requestParser => getPatternFromRequest => exception: ", ex);
+    return [];
+  }
+}
+\end{lstlisting}
+Sau khi có các khuôn mẫu này, mô-đun phân tích tiếp tục đọc tập tin chứa payload tương ứng với loại lỗ hổng cần kiếm thử. Đường dẫn đến tập tin payload được chứa trong thuộc tính \texttt{payloadFile} của cấu hình, tương ứng với loại lỗ hổng cần kiểm thử. Đoạn mã \ref{lst:read-payload-file} sau sẽ đọc tập tin ở đường dẫn trong tham số \texttt{file} để lấy ra danh sách payload này. Đối với những đoạn mã cần dùng đi dùng lại nhiều lần ở nhiều mô-đun khác nhau trong mã nguồn, ví dụ như các thao tác trên tập tin, escape/unescape các chuỗi và payload, định dạng \acrshort{http} response \acrshort{api} trả về, các mô-đun kiểm thử (fuzzers),... chúng tôi sẽ phân loại trong thư mục \texttt{components} ở thư mục gốc mã nguồn backend để tiện cho việc sửa đổi, quản lý và tái sử dụng.
+\begin{lstlisting}[style=ES6, label={lst:read-payload-file}, caption={Đọc danh sách payload từ tập tin}]
+const fs = require('fs');
+const path = require('path');
+const newline = /\r\n|\r|\n/g;
+const readPayloadFile = (file) => {
+  let filePath = path.join(__dirname, '../../payloads/' + file);
+  return fs.readFileSync(filePath, 'utf8').toString().split(newline);
+}
+\end{lstlisting}
+Sau khi có danh sách khuôn mẫu và payload, ta lần lượt thay từng payload vào mỗi khuôn mẫu, đẩy vào một danh sách các request mẫu đã chứa payload, chuyển đến mô-đun xây dựng request kiểm thử. Mỗi phần tử của một danh sách này gồm thành phần chính là một chuỗi dạng đối tượng JSON chứa các thành phần của request mẫu kèm theo payload và một vài thông tin phục vụ quá trình kiểm thử. Danh sách này sau đó được gửi đến mô-đun xây dựng \acrshort{http} request kiểm thử để dựng thành một request kiểm thử hoàn chỉnh và gửi đến ứng dụng web mục tiêu. Đoạn mã \ref{lst:example-base-request-with-payload} dưới đây là ví dụ về một phần tử trong danh sách gồm các trường được mô tả như sau.
+\begin{lstlisting}[style=ES6, label={lst:example-base-request-with-payload}, caption={Ví dụ về một phần từ của danh sách request mẫu chứa payload}]
+{
+  normalReq: '0',
+  vulnId: '1',
+  payload: '..//etc/passwd',
+  req: '{"url":"http://testphp.vulnweb.com:80/showimage.php?file=..//etc/passwd", "cookies":"","headers":{"User-Agent":"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0)Gecko/20100101 Firefox/74.0","Accept":"text/html,application/xhtml+ xml,application/xml;q=0.9,image/webp,*/*;q=0.8","Accept-Language":"en-US,en; q=0.5","Accept-Encoding":"gzip,deflate","DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"},"method":"get"}',
+  timeout: 0
+}
+\end{lstlisting}
+\begin{itemize}
+    \item \textbf{normalReq} chỉ ra vị trí chính xác của cặp ``\texttt{\textbackslash xa7}'' bị thay thế bởi payload trong request mẫu.
+    \item \textbf{vulnId} chứa ID của loại lỗ hổng cần kiểm thử.
+    \item \textbf{payload} chứa payload kiểm thử được dùng trong request này.
+    \item \textbf{req} chứa request mẫu có chứa payload ở dạng chuỗi.
+    \item \textbf{timeout} chứa thời gian tối đa đợi ứng dụng web mục tiêu trả về response đối với request này.
+\end{itemize}
+\textbf{Mô-đun xây dựng \acrshort{http} request kiểm thử (\texttt{requestBuilder})} sẽ phân tích (parse) chuỗi \texttt{req} thành đối tượng JSON để tạo thành \acrshort{http}
+\textbf{Các mô-đun kiểm thử (\texttt{fuzzers})}\\
 \textbf{Mô-đun lưu trữ kết quả kiểm thử (\texttt{updateFuzzingLog})}
