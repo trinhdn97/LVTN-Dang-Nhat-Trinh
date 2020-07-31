@@ -1,5 +1,4 @@
 \cleardoublepage
-
 \appendix
 \chapter{Giao diện và hướng dẫn sử dụng công cụ}
 Để bắt đầu sử dụng công cụ, ta gõ lệnh \texttt{python3 -W ignore server.py} từ thư mục gốc chứa mã nguồn của công cụ. Ở bước bắt đầu, giao diện công cụ hiển thị biểu ngữ bao gồm tên công cụ, tên tác giả, một cửa sổ trình duyệt Firefox, đồng thời cho phép người dùng chọn lỗ hổng bảo mật để kiểm thử như Hình  dưới đây.
@@ -12,12 +11,7 @@ Trong trường hợp lần đầu sử dụng công cụ, ta cần cài đặt 
   \label{fig:main-burp-extension-interface}
 \end{figure}
 Sau khi khởi chạy công cụ webfuzzer và cài đặt phần mở rộng trên Burp Suite, ta tiến hành thiết lập proxy trên Burp Suite và trình duyệt web để bắt request mẫu như hướng dẫn tại \parencite{burp-suite-proxy}. Sau đó ta chuyển request mong muốn đến tab \texttt{Intruder} để tạo và gửi request mẫu đến máy chủ webfuzzer. Hình \ref{fig:send-base-request-1} mô tả quá trình này bằng cách thêm hoặc bỏ các kí tự ``\texttt{\$}'' bao quanh giá trị của tham số và chọn ``\texttt{Send to y4t0g4m1 webfuzzer}''.
-\begin{figure}[H]
-  \centering
-    \includegraphics[width=\textwidth,keepaspectratio=true]{images/send-base-request.png}
-  \caption{Chọn tham số kiểm thử và gửi request mẫu đến webfuzzer}
-  \label{fig:send-base-request-1}
-\end{figure}
+
 Sau khi đã chọn loại lỗ hổng và gửi request mẫu đển webfuzzer, giao diện công cụ lần lượt hiển thị thông báo loại lỗ hổng sắp được kiểm thử (trong trường hợp này là \texttt{Time-based \acrshort{sqli}}) kèm theo các thiết lập của công cụ để phát hiện lỗ hổng đó, bao gồm tập tin chứa danh sách payload, đường dẫn chứa kết quả kiểm thử, các chuỗi dùng để so trùng trong response trả về, thời gian tối đa xử lí request. Sau đó là các kết quả kiểm thử đối với mỗi payload cụ thể và thông báo đã kiểm thử xong loại lỗ hổng này. Giao diện trong quá trình của kiểm thử của công cụ được thể hiện trong Hình 
 Hình cũng thể hiện một số kết quả kiểm thử mà công cụ phát hiện thấy. Mỗi kết quả được in ra bao gồm các thành phần như sau.
 \begin{itemize}

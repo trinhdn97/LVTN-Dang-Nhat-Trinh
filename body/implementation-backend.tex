@@ -1,25 +1,31 @@
 \chapter{Hiện thực ứng dụng webfuzzer}
 Chương này mô tả chi tiết hiện thực của kiến trúc hệ thống ứng dụng webfuzzer, bao gồm ba thành phần backend, \acrshort{ui} và cơ sở dữ liệu của ứng dụng.
 \section{Backend}
-\subsection{Kết nối đến dịch vụ MySQL của hệ điều hành}
 \subsection{Giao diện lập trình ứng dụng}
 
+Định dạng kết quả trả về của cái \acrshort{api} được quy định bởi Đoạn mã \ref{lst:API-result-format} sau. Nếu có lỗi trong quá trình gọi \acrshort{api} thì \acrshort{http} response phản hồi có mã lỗi 400 cùng với thông tin về lỗi trong trường \texttt{error}, ngược lại trong trường hợp gọi \acrshort{api} thành công thì response phản hồi có mã lỗi 200 cùng với dữ liêu cần truy vấn trong trường \texttt{results}.
+\begin{lstlisting}[style=ES6, label={lst:API-result-format}, caption={Định dạng kết quả API trả về ở backend}]
+const response = (res, result, error) => {
+  res.status(error ? (error.httpCode || 400) : (result ? result.httpCode || 200 : 404))
+     .send({ 'error': error, 'results': result });
+}
+\end{lstlisting}
 \subsection{Phần mở rộng Burp Suite}
 Phần mở rộng Burp Suite cho phép gửi \acrshort{http} request mẫu từ mô-đun \texttt{Intruder} của Burp Suite đến công cụ \textbf{webfuzzer} theo định dạng JSON như Đoạn mã \ref{lst:base-request-format} dưới đây, quá trình chọn và gửi request mẫu sẽ được trình bày ở \textbf{Phụ lục A} của luận văn.
 \begin{lstlisting}[style=ES6, label={lst:base-request-format}, caption={Cấu trúc của một HTTP request mẫu được gửi từ phần mở rộng Burp Suite}]
 {
-    "url": "http://testphp.vulnweb.com:80/showimage.php?file=\xa7./pictures/1.jpg\xa7",
-    "cookies": "",
-    "headers": {
-        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate",
-        "DNT": "1",
-        "Connection": "close",
-        "Upgrade-Insecure-Requests": "1"
-    },
-    "method": "get"
+  "url": "http://testphp.vulnweb.com:80/showimage.php?file=\xa7./pictures/1.jpg\xa7",
+  "cookies": "",
+  "headers": {
+      "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.5",
+      "Accept-Encoding": "gzip, deflate",
+      "DNT": "1",
+      "Connection": "close",
+      "Upgrade-Insecure-Requests": "1"
+  },
+  "method": "get"
 }
 \end{lstlisting}
 Chuỗi ``\texttt{\textbackslash xa7}'' trong trường \texttt{data.searchFor} biểu thị kí tự ``\$'' trong request mẫu. Các kí tự này thường nằm ở trường \texttt{data} hoặc \texttt{url} trong đoạn dữ liệu JSON để đánh dấu những vị trí chèn payload để ứng dụng web xử lí. 
@@ -45,7 +51,7 @@ Các biến môi trường (environment variables) được thiết lập để 
             defaultVulnTypes&Array&Các lỗ hổng cần kiểm thử đối với trường hợp\\
             {}&{}&tự động tạo yêu cầu kiểm thử\\
             \addlinespace
-            fuzzStrategy&String&Chiến thuật kiểm thử mặc định\\
+            fuzzStrategy&String&Chiến thuật kiểm thử mặc định của ứng dụng (\texttt{Sniper})\\
             \addlinespace
             autoCreateFuzzRequest&Boolean&Tự động tạo yêu cầu kiểm thử sau khi nhận \acrshort{http}\\
             {}&{}&request mẫu từ Burp Suite với các lỗ hổng mặc định\\
@@ -86,7 +92,7 @@ let defaultFuzzConfig = {
 \end{lstlisting}
 Các cấu hình kiểm thử được quản lý bằng ID dạng số, được định nghĩa và cung cấp từ phía backend thông qua \acrshort{api} để thống nhất giữa ba thành phần của hệ thống trong quá trình thực thi và lưu trữ. Các cấu hình này thường được chúng tôi sử dụng trong quá trình tìm lỗ hổng bảo mật trên các ứng dụng web bằng Burp Suite, chúng tôi sử dụng lại những cấu hình này cho việc kiểm thử ở ứng dụng webfuzzer để tiện so sánh và đánh giá kết quả hiện thực ứng dụng. Vì gặp khó khăn trong việc truyền biểu thức chính quy trong Node.js qua lại giữa \acrshort{ui} và cơ sở dữ liệu (bao gồm việc chuỗi hóa để lưu vào cơ sở dữ liệu và tái cấu trúc biểu thức chính quy để kiểm thử trên backend) nên hiện tại các cấu hình trên đang được thiết lập dưới dạng biến môi trường. Các tập tin payload được phân loại và lưu trữ trong thư mục \texttt{payloads} ở thư mục gốc mã nguồn backend, mỗi payload nằm trên từng dòng riêng biệt, thuận lợi cho việc đọc payload từ phía mô-đun kiểm thử. Ứng dụng chưa hỗ trợ việc sửa đổi cấu hình kiểm thử từ phía \acrshort{ui}.
 \subsection{Mô-đun kiểm thử}
-Đề mục này trình bày chi tiết quá trình hiện thực mô-đun kiểm thử qua 4 bước đã được thiết kế ở \textbf{Chương 5}. Mô-đun này mô phỏng lại một phần chức năng \texttt{Intruder} của Burp Suite với chiến thuật kiểm thử mặc định \texttt{Sniper}. Dữ liệu đầu vào của toàn bộ mô-đun kiểm thử gồm có cấu hình kiểm thử mặc định, các tập tin payload, thông tin của yêu cầu kiểm thử (bao gồm \acrshort{http} request mẫu và các loại lỗ hổng cần kiểm thử). Đầu ra của mô-đun này là danh sách các lỗ hổng mà điểm cuối của ứng dụng web mục tiêu mắc phải kèm theo các payload phát hiện được lỗ hổng (nếu có). Dữ liệu đầu vào trước tiên được đưa đến mô-đun phân tích request mẫu. Để mô tả quá trình hiện thực của mô-đun kiểm thử, chúng tôi mô phỏng việc kiểm thử request mẫu trong Đoạn mã \ref{lst:base-request-format} với lỗ hổng \acrshort{lfi}.\par
+Đề mục này trình bày chi tiết quá trình hiện thực mô-đun kiểm thử qua 4 bước đã được thiết kế ở \textbf{Chương 5}. Mô-đun này mô phỏng lại một phần chức năng \texttt{Intruder} của Burp Suite với chiến thuật kiểm thử mặc định \texttt{Sniper}. Dữ liệu đầu vào của toàn bộ mô-đun kiểm thử gồm có cấu hình kiểm thử mặc định, các tập tin payload, thông tin của yêu cầu kiểm thử (bao gồm \acrshort{http} request mẫu và các loại lỗ hổng cần kiểm thử). Đầu ra của mô-đun này là danh sách các lỗ hổng mà điểm cuối của ứng dụng web mục tiêu mắc phải kèm theo các payload phát hiện được lỗ hổng (nếu có). Một yêu cầu kiểm thử sẽ có ba trạng thái ứng với quá trình tạo yêu cầu (\texttt{Submitted}), đang tiến hành kiểm thử (\texttt{Processing}) và đã hoàn tất kiểm thử (\texttt{Completed}). Dữ liệu đầu vào trước tiên được đưa đến mô-đun phân tích request mẫu. Để mô tả quá trình hiện thực của mô-đun kiểm thử, chúng tôi mô phỏng việc kiểm thử request mẫu trong Đoạn mã \ref{lst:base-request-format} với lỗ hổng \acrshort{lfi}.\par
 \textbf{Mô-đun phân tích request mẫu (\texttt{requestParser})} đầu tiên sẽ tìm những vị trí cần chèn payload trong chuỗi request mẫu, được đánh dấu bằng một hoặc nhiều cặp ``\texttt{\textbackslash xa7}''. Chiến thuật \texttt{Sniper} tương ứng với việc thay lần lượt từng payload vào mỗi vị trí một lần. Đoạn mã \ref{lst:get-patterns-of-request} dưới đây tách request mẫu ra thành một danh sách các khuôn mẫu (pattern) để chèn payload vào, sao cho mỗi khuôn mẫu chỉ chứa một cặp ``\texttt{\textbackslash xa7}''.
 \begin{lstlisting}[style=ES6, label={lst:get-patterns-of-request}, caption={Trích xuất khuôn mẫu từ request mẫu}]
 let patternRegex = /\\xa7.*?\\xa7/g;
@@ -163,7 +169,7 @@ Các tham số này một phần được kế thừa từ request mẫu, bao g�
   \item \textbf{resolveWithFullResponse} nhằm trả về đầy đủ các thuộc tính của đối tượng response trả về, phục vụ cho việc kiểm thử.
   \item \textbf{gzip} chỉ thị tự động thêm kiểu nén dữ liệu thông dụng \texttt{gzip} vào trường \texttt{Accept-Encoding} của headers nếu chưa có.
   \item \textbf{time} chỉ thị ghi lại thời gian phản hồi của máy chủ (elapsed time) kể từ thời điểm gửi request kiểm thử, phục vụ cho việc kiểm tra lỗ hổng time-based \acrshort{sqli}.
-  \item \textbf{timeout} là thời gian chờ response phản hồi tối đa, đơn vị tính là mili giây, nếu thời gian phản hồi của máy chủ lâu hơn tham số này thì mã lỗi \texttt{ESOCKETTIMEDOUT} sẽ được đẩy ra. Tham số này kế thừa từ thuộc tính \texttt{time} của cấu hình kiểm thử lỗ hổng tương ứng. Trong trường hợp kiểm thử lỗ hổng time-based \acrshort{sqli}, thuộc tính này giúp tiết kiệm thời gian kiểm thử rất nhiều. Các payload khai thác lỗi này thường kéo thời gian thực thi request ở phía máy chủ web mục tiêu lên đến 20-60 giây, trong khi chỉ cần khoảng 10 giây như cấu hình kiểm thử là ta đã đủ cơ cở đã kết luận điểm cuối này mắc lỗi.
+  \item \textbf{timeout} là thời gian chờ response phản hồi tối đa, đơn vị tính là mili giây, nếu thời gian phản hồi của máy chủ lâu hơn tham số này thì mã lỗi \texttt{ESOCKETTIMEDOUT} sẽ được đẩy ra. Tham số này kế thừa từ thuộc tính \texttt{time} của cấu hình kiểm thử lỗ hổng tương ứng. Trong trường hợp kiểm thử lỗ hổng time-based \acrshort{sqli}, thuộc tính này giúp tiết kiệm thời gian kiểm thử rất nhiều, tương tự như thuộc tính timeout trong thiết lập của Burp Suite. Các payload khai thác lỗi này thường kéo thời gian thực thi request ở phía máy chủ web mục tiêu lên đến 20-60 giây, trong khi chỉ cần khoảng 10 giây như cấu hình kiểm thử là ta đã đủ cơ cở đã kết luận điểm cuối này mắc lỗi.
 \end{itemize}
 Sau khi dựng và gửi request kiểm thử có kèm payload đến ứng dụng web mục tiêu, chúng tôi lọc bớt một vài thuộc tính của response trả về, đồng thời thêm một vài thuộc tính phục vụ cho việc xác nhận lỗi của mô-đun kiểm thử (\texttt{fuzzers}). Đoạn mã \ref{lst:example-response} là một ví dụ response trả về, bao gồm những thuộc tính như mô tả dưới đây.
 \begin{lstlisting}[style=ES6, label={lst:example-response}, caption={Ví dụ về response phản hồi từ ứng dụng web mục tiêu}]
@@ -236,7 +242,7 @@ Kết quả kiểm thử ứng với mỗi payload sẽ gồm trường \texttt{
   \caption{Kết quả kiểm thử trên terminal backend}
   \label{fig:terminal-result}
 \end{figure}
-Những payload phát hiện được lỗi (có xuất hiện các chuỗi khớp trong body hoặc thời gian thực thi request thỏa cấu hình kiểm thử) sẽ được đổi màu để làm nổi bật trên terminal như Hình \ref{fig:terminal-result}. Trong trường hợp trên, payload ``\texttt{../..//etc/passwd}'' khiến máy chủ web mục tiêu trả về response có body chứa chuỗi ``\texttt{root:x}''. Mỗi dòng kết quả này bao gồm các thành phần sau.
+Những payload phát hiện được lỗi (có xuất hiện các chuỗi khớp trong body hoặc thời gian thực thi request thỏa cấu hình kiểm thử) sẽ được đổi màu để làm nổi bật trên terminal như Hình \ref{fig:terminal-result}. Trong trường hợp trên, payload ``\texttt{../..//etc/passwd}'' khiến máy chủ web mục tiêu trả về response có body chứa chuỗi ``\texttt{root:x}'', dấu hiệu khai thác thành công lỗ hổng \acrshort{lfi}. Mỗi dòng kết quả này bao gồm các thành phần sau.
 \begin{itemize}
   \item \textbf{Kết quả kiểm thử} được đặt trong cặp ngoặc vuông, có thể là \texttt{[passed]} trong trường hợp payload khai thác thành công lỗ hổng hoặc \texttt{[failed]} trong trường hợp payload không khai thác thành công.
   \item \textbf{Mã trạng thái HTTP} của response trả về, thường là \texttt{200} trong trường hợp request được gửi thành công hoặc các mã lỗi \texttt{401}, \texttt{404}, \texttt{500},... khi có sự cố trong quá trình xử lí request ở ứng dụng web mục tiêu.

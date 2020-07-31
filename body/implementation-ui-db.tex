@@ -1,4 +1,5 @@
 \section{Giao diện người dùng}
+Giao diện người dùng của ứng dụng webfuzzer được xây dựng dựa trên bản mẫu (template) React Reduction \parencite{react-reduction-github}. Bản mẫu này được viết trên React.js với sự hỗ trợ của thư viện Bootstrap 4, hiện thực sẵn một số thành phần như thanh điều hướng, các nút bấm, ô lựa chọn, bảng biểu, kiểu chữ,... cũng như giao diện mặc định đẹp mắt, dễ dàng chỉnh sửa theo nhu cầu lập trình. Công việc của chúng tôi là hiện thực và thiết lập luồng hoạt động của ba thành phần chính của \acrshort{ui}, đảm nhiệm được việc gọi các \acrshort{api} backend cung cấp và xử lí kết quả trả về, hiển thị được những thông tin cần thiết đồng thời đáp ứng nhu cầu kiểm thử của người dùng như yêu cầu và thiết kế \acrshort{ui} đã đề ra ở \textbf{Chương 5}.
 \subsection{Trang bảng điều khiển}
 % \FloatBarrier
 % \begin{sidewaysfigure}[!htb]
@@ -7,6 +8,25 @@
 %     \caption{Giao diện trang bảng điều khiển ở UI ứng dụng webfuzzer}
 %     \label{fig:dashboard-ui}
 % \end{sidewaysfigure}
+Trước tiên trong quá trình hiện thực \acrshort{ui} của ứng dụng, chúng tôi sử dụng thư viện Axios \parencite{axios-npm} để gửi \acrshort{http} request gọi \acrshort{api} tới backend ứng dụng webfuzzer. Thư viện này hỗ trợ gửi và nhận các thông điệp \acrshort{http} đơn giản thông qua việc cung cấp các tham số cần thiết như đường dẫn \acrshort{api}, phương thức \acrshort{http} kèm theo body và các tham số nếu có. Đoạn mã \ref{lst:call-API-from-UI} sau hiện thực việc gọi API và lấy ra kết quả trả về trong trường \acrshort{results} trong mã nguồn \acrshort{ui}.
+\begin{lstlisting}[style=ES6, label={lst:call-API-from-UI}, caption={Gọi API từ mã nguồn UI}]
+import axios from 'axios';
+const BASE_URL = require('./globalConfig').BASE_URL;
+const callApi = async (endpoint, method = 'get', body) => {
+  try {
+      let { data } = await axios({
+        method: method,
+        url: `${BASE_URL}${endpoint}`,
+        data: body
+      });
+      return data.results;
+  } catch (err) {
+      console.log(err);
+      return null;
+  }
+}
+\end{lstlisting}
+Trang này cần ba khung hiển thị thông tin 
 \subsection{Trang kết quả kiểm thử}
 % \FloatBarrier
 % \begin{sidewaysfigure}[!htb]
@@ -15,7 +35,10 @@
 %     \caption{Giao diện trang kết quả kiểm thử ở UI ứng dụng webfuzzer}
 %     \label{fig:result-ui-ui}
 % \end{sidewaysfigure}
-\subsection{Thanh điều hướng}
+
+\subsection{Thanh điều hướng và các thành phần khác}
+
+
 \section{Cơ sở dữ liệu}
 Dựa vào thiết kế đã đề ra ở \textbf{Chương 5}, chúng tôi hiện thực cấu trúc cơ sở dữ liệu của ứng dụng webfuzzer gồm ba bảng chính. Bảng \ref{tab:db-tables} dưới đây mô tả tên và chức năng của từng bảng trong lược đồ.
 \begin{table}[ht]
