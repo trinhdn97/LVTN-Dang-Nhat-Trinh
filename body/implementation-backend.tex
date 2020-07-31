@@ -1,13 +1,23 @@
 \chapter{Hiện thực ứng dụng webfuzzer}
 Chương này mô tả chi tiết hiện thực của kiến trúc hệ thống ứng dụng webfuzzer, bao gồm ba thành phần backend, \acrshort{ui} và cơ sở dữ liệu của ứng dụng.
 \section{Backend}
+Đề mục này trình bày chi tiết hiện thực backend của ứng dụng webfuzzer, bao gồm giao diện lập trình ứng dụng, định dạng dữ liệu của phần mở rộng Burp Suite, các biến môi trường, cấu hình và mô-đun kiểm thử, theo thiết kế đã đề ra ở \textbf{Chương 5}.
 \subsection{Giao diện lập trình ứng dụng}
-
+Backend của ứng dụng webfuzzer sẽ làm việc rất nhiều với cơ sở dữ liệu MySQL. Chúng tôi hiện thực các hàm kết nối cơ sở dữ liệu, truy vấn và mở/đóng kết nối sau quá trình thực hiện câu truy vấn, định dạng dữ liệu trả về từ database cũng như các phương thức liên quan đến giao dịch (transaction) trong tập tin \texttt{services/db.js} trong thư mục gốc mã nguồn backend để tiện quản lý và sửa đổi nhất quán.\par
+Những \acrshort{api} liên quan đến việc truy vấn danh sách request mẫu và thông tin yêu cầu kiểm thử đều được hỗ trợ thêm các thuộc tính \texttt{limit, offset} và \texttt{total} để truy vấn một khoảng dữ liệu xác định, phục vụ quá trình phân trang các dữ liệu này ở giao diện người dùng như Đoạn mã \ref{lst:sql-query-with-paging} sau.
+\begin{lstlisting}[style=ES6, label={lst:sql-query-with-paging}, caption={\acrshort{api} truy vấn danh sách request mẫu có hỗ trợ phân trang}]
+let endpointList = await mySqlConnection.query(`SELECT * FROM Endpoint ORDER BY Id DESC LIMIT ? OFFSET ?;`, [limit ? parseInt(limit) : 10, offset ? parseInt(offset) : 0]);
+if (endpointList.error) return reject(endpointList.error);
+endpointList.results = endpointList.results.map(ele => {
+    return { ...ele, BaseRequest: JSON.parse(escapeTarget(ele.BaseRequest)) };
+})
+let total = await mySqlConnection.query(`SELECT Count(Endpoint.Id) as total FROM Endpoint;`);
+return resolve({ endpointList: endpointList.results, total: total.results[0].total });
+\end{lstlisting}
 Định dạng kết quả trả về của cái \acrshort{api} được quy định bởi Đoạn mã \ref{lst:API-result-format} sau. Nếu có lỗi trong quá trình gọi \acrshort{api} thì \acrshort{http} response phản hồi có mã lỗi 400 cùng với thông tin về lỗi trong trường \texttt{error}, ngược lại trong trường hợp gọi \acrshort{api} thành công thì response phản hồi có mã lỗi 200 cùng với dữ liêu cần truy vấn trong trường \texttt{results}.
 \begin{lstlisting}[style=ES6, label={lst:API-result-format}, caption={Định dạng kết quả API trả về ở backend}]
 const response = (res, result, error) => {
-  res.status(error ? (error.httpCode || 400) : (result ? result.httpCode || 200 : 404))
-     .send({ 'error': error, 'results': result });
+  res.status(error ? (error.httpCode || 400) : (result ? result.httpCode || 200 : 404)).send({ 'error': error, 'results': result });
 }
 \end{lstlisting}
 \subsection{Phần mở rộng Burp Suite}

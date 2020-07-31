@@ -23,7 +23,6 @@ Một trong những tiêu chí thể đánh giá \textbf{Tính năng thực tế
 \end{itemize}
 % \section{Tập kiểm thử}
 \section{Kết quả kiểm thử ứng dụng trên một số ứng dụng web}
-Để đánh giá chức năng phát hiện lỗ hổng bảo mật của ứng dụng trong thực tế, chúng tôi đã dùng webfuzzer để kiểm thử một vài trang web và bài lab thực hành có lỗ hổng bảo mật. Nhờ các phương pháp phát hiện lỗ hổng của ứng dụng mà tỉ lệ dương tính giả của các trường hợp kiểm thử đã \texttt{[passed]} bằng 0 (trừ lỗ hổng \acrshort{lfi}). Điều này có nghĩa là chỉ cần 1 trường hợp thỏa mãn điều kiện nhận biết lỗ hổng của ứng dụng thì chắc chắn ứng dụng web đã mắc phải lỗ hổng tương ứng. Các trường hợp \texttt{[skeptical]} là do xảy ra lỗi, ngoại lệ trong quá trình kiểm thử, hoặc có chuỗi dữ liệu thuần trả về đối với trường hợp XSS. Những trường hợp này không nói lên được khả năng có lỗ hổng bảo mật của ứng dụng web hay không, cần phải được hậu kiểm bằng tay, và do đó không được xét đến trong quá trình đánh giá kết quả ứng dụng. Cụ thể kết quả kiểm thử các mục tiêu này được thể hiện trong Bảng \ref{tab:testing-results} sau.\par
 \begin{table}[ht]
     \centering
     \caption{Kết quả kiểm thử một số trang web bằng ứng dụng webfuzzer}
@@ -44,51 +43,3 @@ Một trong những tiêu chí thể đánh giá \textbf{Tính năng thực tế
         \midrule[0.3pt]\bottomrule[1pt]
     \end{tabular}
 \end{table}
-Như đã trình bày ở trên, những cột tương ứng với mỗi loại lỗ hổng được đánh dấu ``\texttt{X}'' chỉ khi có ít nhất một trường hợp kiểm thử đã \texttt{[passed]}. Trường hợp lỗ hổng \acrshort{lfi} thì kết quả kiểm thử có độ tin cậy rất cao, nhưng không thể khẳng định tuyệt đối kết quả đó là chính xác 100\%. Cột ``\textbf{Đường dẫn URL}'' gồm một số trang web hoặc các bài lab thực hành có lỗ hổng bảo mật từ trang web \texttt{https://pentesterlab.com/}. Nhật kí hoạt động cụ thể của ứng dụng sau khi kiểm thử các đối tượng trên được đính kèm trong đĩa CD kèm theo luận văn này, bao gồm HTTP request mẫu và những trường hợp kiểm thử phát hiện được lỗ hổng bảo mật tương ứng. \par
-Số lượng các payload kiểm thử theo từng loại lỗ hổng là 58 payload XSS, 271 payload LFI và 454 payload time-based SQLI được chọn lọc theo mô tả trong \textbf{Chương 5}. Cụ thể kết quả kiểm thử đối với từng trang web và lỗ hổng bảo mật có sự xác nhận lại bằng tay và ứng dụng Burp Suite như sau.
-\begin{itemize}
-    \item \texttt{http://testphp.vulnweb.com/search.php?test=query} - lỗ hổng XSS
-    \begin{itemize}
-        \item Dương tính thật: 15/58 (25.86\%)
-        \item Dương tính giả: 0/58 (0\%)
-        \item \texttt{[skeptical]} dương tính: 22/22 (100\%)
-        \item \texttt{[skeptical]} âm tính: 0/22 (0\%)
-        \item Âm tính thật: 21/58 (36.21\%)
-        \item Âm tính giả: 0/58 (0\%)
-    \end{itemize}
-    \item \texttt{http://testphp.vulnweb.com/search.php?test=query} - lỗ hổng time-based SQLI
-    \begin{itemize}
-        \item Dương tính thật: 13/454 (2.96\%)
-        \item Dương tính giả: 0/454 (0\%)
-        \item \texttt{[skeptical]} dương tính: 2/2 (100\%)
-        \item \texttt{[skeptical]} âm tính: 0/2 (0\%)
-        \item Âm tính thật: 439/454 (96.7\%)
-        \item Âm tính giả: 0/454 (0\%)
-    \end{itemize}
-    \item \texttt{http://testphp.vulnweb.com/showimage.php?file=./pictures/1.jpg} - lỗ hổng LFI
-    \begin{itemize}
-        \item Dương tính thật: 8/271 (2.95\%)
-        \item Dương tính giả: 0/271 (0\%)
-        \item \texttt{[skeptical]} dương tính: 0/0
-        \item \texttt{[skeptical]} âm tính: 0/0
-        \item Âm tính thật: 263/271 (97.05\%)
-        \item Âm tính giả: 0/271 (0\%)
-    \end{itemize}
-    \item (Lab) \texttt{https://pentesterlab.com/exercises/xss\_and\_mysql\_file/} - lỗ hổng XSS
-    \begin{itemize}
-        \item Dương tính thật: 31/58 (53.45\%)
-        \item Dương tính giả: 0/58 (0\%)
-        \item \texttt{[skeptical]} dương tính: 26/26 (100\%)
-        \item \texttt{[skeptical]} âm tính: 0/22 (0\%)
-        \item Âm tính thật: 1/58 (1.72\%)
-        \item Âm tính giả: 0/58 (0\%)
-    \end{itemize}
-\end{itemize}
-Qua kết quả kiểm thử trên, ta thấy ứng dụng phát hiện rất hiệu quả các lỗ hổng bảo mật trên các trang web có lỗi. Hầu hết các trường hợp \texttt{[skeptical]} là do có lỗi hoặc ngoại lệ trong quá trình kiểm thử, thực tế sau khi kiểm tra lại bằng tay thì tất cả các trường hợp nghi ngờ này đều khai thác được lỗ hổng XSS và time-based SQLI. Các payload XSS đa dụng có khả năng phát hiện rất tốt, 37/58 payload phát hiện được lỗ hổng XSS trên trang \texttt{http://testphp.vulnweb.com/search.php?test=query} và đến 57/58 payload phát hiện được lỗ hổng trên bài lab \texttt{https://pentesterlab.com/exercises/xss\_and\_mysql\_file/}. Đối với trường hợp lỗ hổng LFI và time-based SQLI, tỉ lệ dương tính thật khá thấp vì đặc thù phương pháp xây dựng payload phát hiện hai lỗ hổng này. Đối với LFI, payload phải đi đến một độ sâu thư mục nhất định mới chạm được đến tập tin \texttt{/etc/passwd}, thành ra tất cả các payload với độ sâu thấp hơn đều không thể phát hiện được lỗ hổng này. Tương tự với lỗ hổng time-based SQLI, chỉ có các payload thỏa mãn chính xác cách thức đóng ngoặc và chú thích trong môi trường thực thi câu lệnh SQL ở phía mấy chủ web, do đó một số lượng lớn payload kiểm thử thất bại vì xảy ra lỗi cú pháp ở phía máy chủ. Ngoài những trường hợp đó ra thì ứng dụng bắt dính chính xác các trường hợp còn lại, không có trường hợp âm tính giả hay dương tính giả nào trong quá trình kiểm thử các đối tượng trên, đây là một sự thành công rất lớn trong quá trình hiện thực webfuzzer.
-
-% TODO: So sánh với: 
-% - https://hackertarget.com/
-% - Acunetix 
-% - https://www.owasp.org/index.php/Fuzzing
-% - metasploit/beef xss framework
-% - xssstrike 
