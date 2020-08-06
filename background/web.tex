@@ -40,40 +40,40 @@ Giao thức truyền tải siêu văn bản (hypertext transfer protocol - \acrs
 \end{figure}
 
 % TODO: có thế sẽ viết thêm về cả CSP và CORS?
-\subsection{Chính sách cùng nguồn gốc}
-Phần này trình bày khái niệm và những ngoại lệ của chính sách cùng nguồn gốc \parencite{sullivan2011web} \acrfull{sop}. Chính sách cùng nguồn gốc là một trong những khái niệm nền tảng trong lĩnh vực bảo mật trình duyệt web. Không có \acrshort{sop} thì mọi trang web trên internet đều có thể tiếp cần được thông tin bí mật của người dùng ở bất kì trang web nào khác. Việc khai thác các lỗ hổng bảo mật như \acrshort{xss}, \acrshort{sqli} (sẽ được làm rõ ở phần sau), \acrfull{xsrf},... là cách thức chủ yếu để vượt qua tính phòng thủ vốn có của \acrshort{sop}. \acrshort{sop} là một sự đồng thuận cần thiết giữa những nhà cung cấp trình duyệt web (như Microsoft, Apple, Google, Mozilla, Opera) trong việc giới hạn chức năng cũng như quyền hạn của các đoạn mã kịch bản (scripting code) trên trình duyệt của \textbf{người dùng} (client-side, phân biệt với phía máy chủ - server-side). \acrshort{sop} quy định rằng khi người dùng đang truy cập một trang web X nào đó trên trình duyệt, những đoạn mã của trang web X đó chỉ được phép đọc và ghi nội dung xuống một trang web Y khác (và ngược lại) nếu cả hai trang web X và Y có cùng nguồn gốc (origin). Hai trang web có cùng nguồn gốc ở đây có nghĩa là giống hệt nhau về ba thành phần: giao thức tầng ứng dụng của trang web (\acrshort{http}, \acrshort{https}), cổng TCP (thường là cổng 80 cho giao thức \acrshort{http} và cổng 443 cho giao thức \acrshort{https}), và tên miền của hai trang web (ví dụ \texttt{www.example.com} hay \texttt{www.google.com}).
-\begin{figure}[H]
-  \centering
-    \includegraphics[width=0.6\textwidth,keepaspectratio=true]{images/origin-definition.png}
-  \caption{Các thành phần của nguồn gốc (origin) của một trang web}
-  \label{fig:origin-definition}
-\end{figure}
-Ví dụ về việc so sánh nguồn gốc giữa các trang web khác nhau được thể hiện như Bảng \ref{tab:SOP-example} sau.
-\begin{table}[ht]
-    \centering
-    \caption{Minh họa việc so sánh nguồn gốc với trang web \texttt{https://drive.google.com/my-drive}}
-    \label{tab:SOP-example}
-    \begin{tabular}[t]{lcc}
-        \toprule[1pt]\midrule[0.3pt]
-            \textbf{Đường dẫn URL}&\textbf{Kết quả}&\textbf{Lý do}\\
-        \midrule
-            \texttt{https://drive.google.com/your-drive}&Cùng nguồn gốc&Chỉ khác đường dẫn\\
-            \addlinespace
-            \texttt{https://drive.google.com/my-drive/my-docs}&Cùng nguồn gốc&Chỉ khác đường dẫn\\
-            \addlinespace
-            \texttt{http://drive.google.com/my-drive}&Không cùng nguồn gốc&Khác giao thức\\
-            \addlinespace
-            \texttt{https://drive.google.com:444/my-drive}&Không cùng nguồn gốc&Khác cổng\\
-            \addlinespace
-            \texttt{https://mail.google.com/my-drive}&Không cùng nguồn gốc&Khác tên miền\\
-        \midrule[0.3pt]\bottomrule[1pt]
-    \end{tabular}
-\end{table}
-Bên cạnh việc chỉ cho phép tương tác về mặt dữ liệu với những trang web có cùng nguồn gốc thì \acrshort{sop} cũng có một số ngoại lệ, cho phép ứng dụng web vượt qua \acrshort{sop} một cách có kiểm soát. Điều này giúp ứng dụng web trở nên uyển chuyển, giàu nội dung, đa chức năng và dễ hiện thực các chức năng đó hơn. Một số thẻ \acrshort{html} ngoại lệ được vượt qua \acrshort{sop} tiêu biểu có thể kể đến.
-\begin{itemize}
-    \item \texttt{<script src="..."></script>}
-    \item \texttt{<link rel="stylesheet" href="...">}
-    \item \texttt{<img src="...">, <video>, <audio>, <object>, <applet>}
-    \item \texttt{<iframe src="...">, <frame>}
-\end{itemize}
-Những thẻ \acrshort{html} kể trên (cùng với một số ngoại lệ đặc thù khác) được phép tải về và thực thi mã nguồn/hình ảnh/video từ địa chỉ web được đặc tả trong thuộc tính \texttt{src}, \texttt{href},... cho dù những địa chỉ web đó có thể không có cùng nguồn gốc với trang web nguồn.
+% \subsection{Chính sách cùng nguồn gốc}
+% Phần này trình bày khái niệm và những ngoại lệ của chính sách cùng nguồn gốc \parencite{sullivan2011web} \acrfull{sop}. Chính sách cùng nguồn gốc là một trong những khái niệm nền tảng trong lĩnh vực bảo mật trình duyệt web. Không có \acrshort{sop} thì mọi trang web trên internet đều có thể tiếp cần được thông tin bí mật của người dùng ở bất kì trang web nào khác. Việc khai thác các lỗ hổng bảo mật như \acrshort{xss}, \acrshort{sqli} (sẽ được làm rõ ở phần sau), \acrfull{xsrf},... là cách thức chủ yếu để vượt qua tính phòng thủ vốn có của \acrshort{sop}. \acrshort{sop} là một sự đồng thuận cần thiết giữa những nhà cung cấp trình duyệt web (như Microsoft, Apple, Google, Mozilla, Opera) trong việc giới hạn chức năng cũng như quyền hạn của các đoạn mã kịch bản (scripting code) trên trình duyệt của \textbf{người dùng} (client-side, phân biệt với phía máy chủ - server-side). \acrshort{sop} quy định rằng khi người dùng đang truy cập một trang web X nào đó trên trình duyệt, những đoạn mã của trang web X đó chỉ được phép đọc và ghi nội dung xuống một trang web Y khác (và ngược lại) nếu cả hai trang web X và Y có cùng nguồn gốc (origin). Hai trang web có cùng nguồn gốc ở đây có nghĩa là giống hệt nhau về ba thành phần: giao thức tầng ứng dụng của trang web (\acrshort{http}, \acrshort{https}), cổng TCP (thường là cổng 80 cho giao thức \acrshort{http} và cổng 443 cho giao thức \acrshort{https}), và tên miền của hai trang web (ví dụ \texttt{www.example.com} hay \texttt{www.google.com}).
+% \begin{figure}[H]
+%   \centering
+%     \includegraphics[width=0.6\textwidth,keepaspectratio=true]{images/origin-definition.png}
+%   \caption{Các thành phần của nguồn gốc (origin) của một trang web}
+%   \label{fig:origin-definition}
+% \end{figure}
+% Ví dụ về việc so sánh nguồn gốc giữa các trang web khác nhau được thể hiện như Bảng \ref{tab:SOP-example} sau.
+% \begin{table}[ht]
+%     \centering
+%     \caption{Minh họa việc so sánh nguồn gốc với trang web \texttt{https://drive.google.com/my-drive}}
+%     \label{tab:SOP-example}
+%     \begin{tabular}[t]{lcc}
+%         \toprule[1pt]\midrule[0.3pt]
+%             \textbf{Đường dẫn URL}&\textbf{Kết quả}&\textbf{Lý do}\\
+%         \midrule
+%             \texttt{https://drive.google.com/your-drive}&Cùng nguồn gốc&Chỉ khác đường dẫn\\
+%             \addlinespace
+%             \texttt{https://drive.google.com/my-drive/my-docs}&Cùng nguồn gốc&Chỉ khác đường dẫn\\
+%             \addlinespace
+%             \texttt{http://drive.google.com/my-drive}&Không cùng nguồn gốc&Khác giao thức\\
+%             \addlinespace
+%             \texttt{https://drive.google.com:444/my-drive}&Không cùng nguồn gốc&Khác cổng\\
+%             \addlinespace
+%             \texttt{https://mail.google.com/my-drive}&Không cùng nguồn gốc&Khác tên miền\\
+%         \midrule[0.3pt]\bottomrule[1pt]
+%     \end{tabular}
+% \end{table}
+% Bên cạnh việc chỉ cho phép tương tác về mặt dữ liệu với những trang web có cùng nguồn gốc thì \acrshort{sop} cũng có một số ngoại lệ, cho phép ứng dụng web vượt qua \acrshort{sop} một cách có kiểm soát. Điều này giúp ứng dụng web trở nên uyển chuyển, giàu nội dung, đa chức năng và dễ hiện thực các chức năng đó hơn. Một số thẻ \acrshort{html} ngoại lệ được vượt qua \acrshort{sop} tiêu biểu có thể kể đến.
+% \begin{itemize}
+%     \item \texttt{<script src="..."></script>}
+%     \item \texttt{<link rel="stylesheet" href="...">}
+%     \item \texttt{<img src="...">, <video>, <audio>, <object>, <applet>}
+%     \item \texttt{<iframe src="...">, <frame>}
+% \end{itemize}
+% Những thẻ \acrshort{html} kể trên (cùng với một số ngoại lệ đặc thù khác) được phép tải về và thực thi mã nguồn/hình ảnh/video từ địa chỉ web được đặc tả trong thuộc tính \texttt{src}, \texttt{href},... cho dù những địa chỉ web đó có thể không có cùng nguồn gốc với trang web nguồn.

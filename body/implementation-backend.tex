@@ -1,10 +1,43 @@
 \chapter{Hiện thực ứng dụng webfuzzer}
-Chương này mô tả chi tiết hiện thực của kiến trúc hệ thống ứng dụng webfuzzer, bao gồm ba thành phần backend, \acrshort{ui} và cơ sở dữ liệu của ứng dụng.
+Chương này mô tả chi tiết hiện thực của kiến trúc hệ thống ứng dụng webfuzzer, bao gồm ba thành phần backend, \acrshort{ui} và cơ sở dữ liệu của ứng dụng dựa trên thiết kế đã đề ra ở \textbf{Chương 5}.
 \section{Backend}
-Đề mục này trình bày chi tiết hiện thực backend của ứng dụng webfuzzer, bao gồm giao diện lập trình ứng dụng, định dạng dữ liệu của phần mở rộng Burp Suite, các biến môi trường, cấu hình và mô-đun kiểm thử, theo thiết kế đã đề ra ở \textbf{Chương 5}.
+Đề mục này trình bày chi tiết hiện thực backend của ứng dụng webfuzzer, bao gồm giao diện lập trình ứng dụng, định dạng dữ liệu của phần mở rộng Burp Suite, các biến môi trường, cấu hình và mô-đun kiểm thử.
 \subsection{Giao diện lập trình ứng dụng}
-Backend của ứng dụng webfuzzer sẽ làm việc rất nhiều với cơ sở dữ liệu MySQL. Chúng tôi hiện thực các hàm kết nối cơ sở dữ liệu, truy vấn và mở/đóng kết nối sau quá trình thực hiện câu truy vấn, định dạng dữ liệu trả về từ database cũng như các phương thức liên quan đến giao dịch (transaction) trong tập tin \texttt{services/db.js} trong thư mục gốc mã nguồn backend để tiện quản lý và sửa đổi nhất quán.\par
-Những \acrshort{api} liên quan đến việc truy vấn danh sách request mẫu và thông tin yêu cầu kiểm thử đều được hỗ trợ thêm các thuộc tính \texttt{limit, offset} và \texttt{total} để truy vấn một khoảng dữ liệu xác định, phục vụ quá trình phân trang các dữ liệu này ở giao diện người dùng như Đoạn mã \ref{lst:sql-query-with-paging} sau.
+Ứng dụng webfuzzer sử dụng khung thức Express.js để hiện thực một máy chủ web ở backend, dễ dàng định tuyến các \acrshort{api} ở backend và lắng nghe các \acrshort{http} request gọi đến các \acrshort{api} này. Đề mục này mô tả chi tiết hiện thực của các \acrshort{api} thuộc lớp trình điều khiển \texttt{target}, hai lớp trình điều khiển còn lại được hiện thực tương tự. Trước tiên backend nạp đường dẫn gốc của các lớp \acrshort{api} và khởi động một máy chủ lắng nghe ở một cổng xác định bằng các phương thức \texttt{app.use, app.listen} như trong Đoạn mã \ref{lst:server-implement-express} sau.
+\begin{lstlisting}[style=ES6, label={lst:server-implement-express}, caption={Thiết lập đường dẫn gốc của các \acrshort{api} và khởi động backend}]
+app.use('/', burpRoute(express.Router(), app, burpMethods));
+app.use('/target', targetRoute(express.Router(), app, targetMethods));
+app.use('/fuzz', fuzzRoute(express.Router(), app, fuzzMethods));
+app.use('/recon', reconRoute(express.Router(), app, reconMethods));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.listen(port, '0.0.0.0', () => {
+    console.log(`webfuzzer is listening on 0.0.0.0:${port}`);
+});
+\end{lstlisting}
+Lấy ví dụ các \acrshort{api} thuộc lớp \texttt{target}, chúng tôi định nghĩa đường dẫn của các \acrshort{api} này bằng cách thêm chúng vào đối tượng \texttt{router} sẵn có của khung thức Express.js. Chúng tôi định nghĩa mỗi đường dẫn \acrshort{api} sẽ làm gì khi được gọi đến như Đoạn mã \ref{lst:add-routes-to-router} sau.
+\begin{lstlisting}[style=ES6, label={lst:add-routes-to-router}, caption={Định nghĩa đường dẫn cho các \acrshort{api} thuộc lớp target}]
+let targetRoute = (router, expressApp, targetMethods) => {
+    router.post('/', targetMethods.createFuzzRequest);
+    router.get('/', targetMethods.retrieveRequestInfo);
+    router.get('/list', targetMethods.getRequestList);
+    router.get('/configs', targetMethods.getVulnTypes);
+    router.get('/search', targetMethods.searchUrl);
+    return router;
+}
+const _targetRoute = targetRoute;
+export { _targetRoute as targetRoute };
+\end{lstlisting}
+Ví dụ, câu lệnh \colorbox{gray!30}{\texttt{router.post('/', targetMethods.createFuzzRequest);}} có nghĩa là khi người dùng gọi đến đường dẫn \texttt{/target} với phương thức \texttt{POST} thì phương thức \texttt{targetMethods.createFuzzRequest} của lớp \texttt{targetController} sẽ được khởi chạy. Các phương thức trong mỗi lớp trình điều khiển là nơi thực hiện chức năng của các \acrshort{api} ở backend, chủ yếu là đọc/ghi dữ liệu từ cơ sở dữ liệu thông qua các câu truy vấn và thực hiện kiểm thử. Lớp \texttt{targetController} gồm các phương thức đã được thiết kế ở \textbf{Chương 5} như Hình \ref{fig:implement-target-controller-class} sau.
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=0.95\textwidth,keepaspectratio=true]{images/implement-target-controller-class.png}
+  \caption{Các phương thức của lớp targetController}
+  \label{fig:implement-target-controller-class}
+\end{figure}
+% \begin{lstlisting}[style=ES6, label={lst:sql-query-with-paging}, caption={\acrshort{api} truy vấn danh sách request mẫu có hỗ trợ phân trang}]
+
+% \end{lstlisting}
+Backend của ứng dụng webfuzzer sẽ làm việc rất nhiều với cơ sở dữ liệu MySQL. Chúng tôi hiện thực các hàm kết nối cơ sở dữ liệu, truy vấn và mở/đóng kết nối sau quá trình thực hiện câu truy vấn, định dạng dữ liệu trả về từ database cũng như các phương thức liên quan đến giao dịch (transaction) trong tập tin \texttt{services/db.js} trong thư mục gốc mã nguồn backend để tiện quản lý và sửa đổi một cách nhất quán. Những \acrshort{api} liên quan đến việc truy vấn danh sách request mẫu và thông tin yêu cầu kiểm thử đều được hỗ trợ thêm các thuộc tính \texttt{limit, offset} và \texttt{total} để truy vấn một khoảng dữ liệu xác định, phục vụ quá trình phân trang các dữ liệu này ở giao diện người dùng như Đoạn mã \ref{lst:sql-query-with-paging} sau.
 \begin{lstlisting}[style=ES6, label={lst:sql-query-with-paging}, caption={\acrshort{api} truy vấn danh sách request mẫu có hỗ trợ phân trang}]
 let endpointList = await mySqlConnection.query(`SELECT * FROM Endpoint ORDER BY Id DESC LIMIT ? OFFSET ?;`, [limit ? parseInt(limit) : 10, offset ? parseInt(offset) : 0]);
 if (endpointList.error) return reject(endpointList.error);
@@ -61,7 +94,7 @@ Các biến môi trường (environment variables) được thiết lập để 
             defaultVulnTypes&Array&Các lỗ hổng cần kiểm thử đối với trường hợp\\
             {}&{}&tự động tạo yêu cầu kiểm thử\\
             \addlinespace
-            fuzzStrategy&String&Chiến thuật kiểm thử mặc định của ứng dụng (\texttt{Sniper})\\
+            fuzzStrategy&String&Chiến thuật kiểm thử mặc định (\texttt{Sniper})\\
             \addlinespace
             autoCreateFuzzRequest&Boolean&Tự động tạo yêu cầu kiểm thử sau khi nhận \acrshort{http}\\
             {}&{}&request mẫu từ Burp Suite với các lỗ hổng mặc định\\
@@ -76,9 +109,12 @@ Các biến môi trường (environment variables) được thiết lập để 
             \addlinespace
             verbose&Boolean&Hiển thị thêm thông tin chi tiết trong quá trình\\
             {}&{}&hoạt động của backend trên terminal\\
+            \addlinespace
+            displayResultOnTerminal&Boolean&Hiển thị kết quả kiểm thử trên terminal ở backend\\
         \midrule[0.3pt]\bottomrule[1pt]
     \end{tabular}
 \end{table}
+\FloatBarrier
 \subsection{Cấu hình kiểm thử}
 Điểm chung của những lỗ hổng bảo mật đã giới thiệu ở \textbf{Chương 3} là đều có thể bị khai thác bằng dữ liệu đầu vào từ phía người dùng. Vì thế, ta có thể phát hiện các lỗ hổng này bằng cách thử gửi nhiều dạng payload kiểm thử theo các tham số của \acrshort{http} request và phân tích phản hồi của máy chủ trong response trả về, việc làm này đặc biệt phù hợp với phương pháp fuzzing. Cụ thể giới hạn và phương pháp phát hiện của ứng dụng \textbf{webfuzzer} đối với từng lớp lỗ hổng như sau.
 \begin{itemize}
@@ -152,7 +188,9 @@ Sau khi có danh sách khuôn mẫu và payload, ta lần lượt thay từng pa
     \item \textbf{req} chứa request mẫu có chứa payload ở dạng chuỗi.
     \item \textbf{timeout} chứa thời gian tối đa đợi ứng dụng web mục tiêu trả về response đối với request này.
 \end{itemize}
-\textbf{Mô-đun xây dựng \acrshort{http} request kiểm thử (\texttt{requestBuilder})} sử dụng thư viện Request \parencite{request-npm} của Node.js hỗ trợ dựng \acrshort{http} request kiểm thử, gửi đến ứng dụng web mục tiêu và nhận response tương ứng trả về. Mô-đun này đầu tiên sẽ phân tích (parse) chuỗi \texttt{req} trong request mẫu thành đối tượng JSON, cung cấp những tham số cần thiết để dựng request. Đoạn mã \ref{lst:example-request-option} sau là một ví dụ về các tham số này.
+\textbf{Mô-đun xây dựng \acrshort{http} request kiểm thử (\texttt{requestBuilder})} sử dụng thư viện Request
+% \parencite{request-npm} 
+của Node.js hỗ trợ dựng \acrshort{http} request kiểm thử, gửi đến ứng dụng web mục tiêu và nhận response tương ứng trả về. Mô-đun này đầu tiên sẽ phân tích (parse) chuỗi \texttt{req} trong request mẫu thành đối tượng JSON, cung cấp những tham số cần thiết để dựng request. Đoạn mã \ref{lst:example-request-option} sau là một ví dụ về các tham số này.
 \begin{lstlisting}[style=ES6, label={lst:example-request-option}, caption={Ví dụ về tham số xây dựng request kiểm thử}]
 { 
   method: 'get',

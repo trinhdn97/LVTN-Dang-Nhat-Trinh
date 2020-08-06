@@ -1,31 +1,10 @@
 \chapter{Kiểm định và đánh giá kết quả}
-Chương này giới thiệu một bộ tiêu chí đánh giá ứng dụng fuzzing đồng thời trình bày kết quả sử dụng ứng dụng webfuzzer để kiểm thử một số trang web có lỗ hổng bảo mật. 
-\section{Bộ tiêu chí đánh giá ứng dụng webfuzzer}
-Trong luận văn này, tôi áp dụng bộ tiêu chí đánh giá ứng dụng fuzzing của Mikko Vimpari \parencite{vimpari2015evaluation} để đánh giá ứng dụng webfuzzer đã được hiện thực. Theo tác giả, bộ tiêu chí đánh giá này được xây dựng dựa trên nhu cầu của người dùng mục tiêu, cụ thể ở đây là một lập trình viên nắm được lý thuyết kiểm thử bảo mật và thời gian của anh ta là có hạn. Mục đích của anh ta là phát hiện nhanh những lỗ hổng bảo mật khá phổ biến, gần như không đáng kể (low-hanging fruits) để tầm soát một vài ứng dụng web mục tiêu. Đây là bộ tiêu chí thích hợp để kiểm thử ứng dụng webfuzzer về cả đối tượng người dùng lẫn mục đích sử dụng. Bộ tiêu chí này bao gồm 10 tiêu chí được chia thành 3 hạng mục như sau.\par 
-\textbf{Tính dễ sử dụng của ứng dụng} thể hiện qua quá trình thiết lập môi trường vận hành, khởi động ứng dụng. ứng dụng có thể chạy trên nhiều phiên bản hệ điều hành phổ biến như Windows, Linux hay Mac OS X không, hay phải cần chính xác phiên bản hệ điều hành để vận hành, hoặc khó khăn hơn, cần phải khởi tạo môi trường đặc thù sử dụng Docker chẳng hạn? ứng dụng có được biên dịch, đóng gói sẵn hay cần phải biên dịch trước khi sử dụng hay không? Ngoài ra, tài liệu chi tiết về hướng dẫn sử dụng và cá nhân hóa ứng dụng, cộng với những sự hỗ trợ của nhà phát triển cũng như cộng đồng trong quá trình sử dụng cũng là một tiêu chí đánh giá ứng dụng. Dựa theo đó tôi đánh giá tính dễ sử dụng của ứng dụng webfuzzer theo các tiêu chí sau.
-\begin{itemize}
-    \item \textbf{Tập tin thực thi có sẵn:} Một phần. ứng dụng dễ dàng được khởi động từ terminal trên hệ điều hành Ubuntu hoặc PowerShell trên Windows nhưng chưa đóng gói thành tập tin thực thi trên hai hệ điều hành trên.
-    \item \textbf{Tài liệu của ứng dụng:} Đạt. Tài liệu hướng dẫn cài đặt, sử dụng và cá nhân hóa ứng dụng được cung cấp đầy đủ tại \textbf{Phụ lục A} của luận văn này và README.md trên dự án Gitlab tại \parencite{webfuzzer-gitlab}.
-    \item \textbf{Sự hỗ trợ của cộng đồng:} Không nhiều. Hiện tại việc hỗ trợ trong quá trình sử dụng ứng dụng chỉ được thực hiện bởi tôi và ứng dụng chưa được cộng đồng biêt đến để sử dụng.
-    \item \textbf{Môi trường vận hành ứng dụng:} Đạt. ứng dụng thực thi được trên nhiều phiên bản python3 từ 3.6.0 trở lên trên hệ điều hành Windows 10 x64 phiên bản 1903 và Ubuntu 18.04 LTS.
-\end{itemize}
-Một trong những tiêu chí thể đánh giá \textbf{Tính năng thực tế} của ứng dụng là khả năng tự động, ứng dụng có thể tự động sinh ra các trường hợp kiểm thử sau đó tự động vận hành và phán đoán kêt quả kiểm thử được không? Một tiêu chí nữa là khả năng giám sát mục tiêu kiểm thử. Khi tiến hành kiểm thử mục tiêu, ứng dụng có thể nhận ra nguyên nhân gốc rễ khiến một loạt các trường hợp kiểm thử bị thất bại hay không? Cuối cùng là tiêu chí về khả năng cá nhân hóa của ứng dụng, ứng dụng có những lựa chọn về độ sâu (level) hay tập trường hợp kiểm thử tùy theo mục đích người dùng hay không? Dựa theo đó tôi đánh giá các tính năng thực tế của ứng dụng webfuzzer theo các tiêu chí sau.
-\begin{itemize}
-    \item \textbf{Khả năng tự động hóa:} Một phần. Quá trình tạo và gửi \acrshort{http} request mẫu đến ứng dụng được thực hiện bằng tay. Sau đó, quá trình kiểm thử được thực hiện hoàn toàn tự động.
-    \item \textbf{Khả năng giám sát mục tiêu:} Không.
-    \item \textbf{Các tùy chọn cá nhân hóa:} Một phần. Người dùng có thể chỉnh sửa các thiết lập kiểm thử theo từng lỗ hổng bảo mật nhưng phải điều chỉnh trong mã nguồn của ứng dụng chứ chưa thay đổi thiết lập trên giao diện ứng dụng được.
-\end{itemize}
-\textbf{Sự thông minh} của ứng dụng fuzzing cũng là một vấn đề đáng so sánh. Các trường hợp kiểm thử có được tạo ra hoặc đột biến (mutated) dựa trên các trường hợp kiểm thử có sẵn hay không, hay tất cả đêu được sinh ra ngẫu nhiên? ứng dụng có sử dụng những thuật toán tự nghiệm (heuristic) để tăng hiệu năng như kiểm tra các trường hợp biên đặc biệt hay tầm thường, áp dụng các heuristic đã được chứng minh tính hiệu quả trước đó hay không? Cuối cùng, ứng dụng có phải là một fuzzer kiểm thử dựa trên mô hình và có dễ để tạo ra một mô hình trường hợp kiểm thử hay không? Dựa theo đó tôi đánh giá sự thông minh của ứng dụng webfuzzer theo các tiêu chí sau.
-\begin{itemize}
-    \item \textbf{Dữ liệu ngẫu nhiên, đột biến hay được sinh ra từ mô hình:} Các trường hợp kiểm thử được xây dựng từ các danh sách payload có sẵn.
-    \item \textbf{Ứng dụng có áp dụng heuristic:} Không
-    \item \textbf{Sử dụng mô hình sinh trường hợp kiểm thử:} Không
-\end{itemize}
-% \section{Tập kiểm thử}
-\section{Kết quả kiểm thử ứng dụng trên một số ứng dụng web}
+Chương này chúng tôi trình bày kết quả sử dụng ứng dụng webfuzzer để kiểm thử một số ứng dụng web và so sánh trực tiếp với quá trình kiểm thử bằng chức năng \texttt{Intruder} của công cụ Burp Suite để đánh giá kết quả đạt được thông qua quá trình thiêt kế và hiện thực ứng dụng.\par
+Để quá trình đánh giá kết quả được khách quan, chúng tôi sử dụng tập kiểm thử gồm có các trang web có và không có các lỗ hổng \acrshort{lfi} và time-based \acrshort{sqli}. Chúng tôi đồng thời kiểm thử các trang web này bằng webfuzzer và Burp Suite, so sánh kết quả kiểm thử, các payload phát hiện lỗ hổng nếu có, và thời gian kiểm thử mỗi mục tiêu của hai phần mềm này. Máy tính thực hiện kiểm thử trên cả hai phần mềm sử dụng CPU Intel Core i5-9400F và 8GB DDR4 RAM, trên hệ điều hành Ubuntu 20.04 LTS Focal. Ở chức năng \texttt{Intruder} của Burp Suite chúng tôi thiết lập số lượng luồng (threads) là 1, số lần thử gửi lại request khi thất bại là 0, và không áp dụng các phương pháp encode nào khác trên payload cũng như \acrshort{url} vì trong webfuzzer chúng tôi không hiện thực các chức năng này.\par
+\FloatBarrier
 \begin{table}[ht]
     \centering
-    \caption{Kết quả kiểm thử một số trang web bằng ứng dụng webfuzzer}
+    \caption{Kiểm thử đường dẫn }
     \label{tab:testing-results}
     \begin{tabular}[ht]{lcccc}
         \toprule[1pt]\midrule[0.3pt]
@@ -43,3 +22,4 @@ Một trong những tiêu chí thể đánh giá \textbf{Tính năng thực tế
         \midrule[0.3pt]\bottomrule[1pt]
     \end{tabular}
 \end{table}
+\FloatBarrier
