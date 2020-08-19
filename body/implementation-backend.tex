@@ -14,8 +14,8 @@ app.listen(port, '0.0.0.0', () => {
     console.log(`webfuzzer is listening on 0.0.0.0:${port}`);
 });
 \end{lstlisting}
-Chúng tôi sử dụng thư viện Swagger UI Express để xây dựng tài liệu cho giao diện lập trình ứng dụng của webfuzzer. 
-Thư viện này hỗ trợ vẽ ra một trang chứa đầy đủ thông tin của các \acrshort{api} từ tập tin \texttt{swagger.json} trong đường dẫn gốc của thư mục mã nguồn backend, đồng thời cho phép người dùng gọi \acrshort{api} đến địa chỉ máy chủ được thiết lập sẵn trong thuộc tính \texttt{host} của tập tin trên. Lấy ví dụ các \acrshort{api} thuộc lớp \texttt{target}, chúng tôi định nghĩa đường dẫn của các \acrshort{api} này bằng cách thêm chúng vào đối tượng \texttt{router} sẵn có của khung thức Express.js. Chúng tôi định nghĩa mỗi đường dẫn \acrshort{api} sẽ làm gì khi được gọi đến như Đoạn mã \ref{lst:add-routes-to-router} sau.
+Chúng tôi sử dụng thư viện Swagger UI Express để xây dựng tài liệu cho giao diện lập trình ứng dụng của webfuzzer. Thư viện này hỗ trợ vẽ ra một trang web chứa đầy đủ thông tin của các \acrshort{api} từ tập tin \texttt{swagger.json} trong đường dẫn gốc của thư mục mã nguồn backend, đồng thời cho phép người dùng gọi \acrshort{api} đến địa chỉ máy chủ được thiết lập sẵn trong thuộc tính \texttt{host} của tập tin trên. Trang web trên nằm ở đường dẫn \colorbox{gray!30}{/api-docs} trên máy chủ backend webfuzzer.\par
+Lấy ví dụ các \acrshort{api} thuộc lớp \texttt{target}, chúng tôi định nghĩa đường dẫn của các \acrshort{api} này bằng cách thêm chúng vào đối tượng \texttt{router} sẵn có của khung thức Express.js. Chúng tôi định nghĩa mỗi đường dẫn \acrshort{api} sẽ làm gì khi được gọi đến như Đoạn mã \ref{lst:add-routes-to-router} sau.
 \begin{lstlisting}[style=ES6, label={lst:add-routes-to-router}, caption={Định nghĩa đường dẫn cho các \acrshort{api} thuộc lớp target}]
 let targetRoute = (router, expressApp, targetMethods) => {
     router.post('/', targetMethods.createFuzzRequest);
@@ -81,7 +81,7 @@ Các biến môi trường (environment variables) được thiết lập để 
         \toprule[1pt]\midrule[0.3pt]
             \textbf{Tên biến môi trường}&\textbf{Kiểu dữ liệu}&\textbf{Mô tả}\\ 
         \midrule
-            SERVICE\_PORT&Integer&Cổng khởi chạy backend của ứng dụng\\
+            SERVICE\_PORT&Integer&Cổng khởi chạy backend của ứng dụng (13336)\\
             \addlinespace
             {}&{}&Các thiết lập để kết nối đến dịch vụ MySQL\\
             mysqlConfig&Object&của hệ điều hành, bao gồm host:port, tên\\
