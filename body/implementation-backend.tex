@@ -3,7 +3,7 @@ Chương này mô tả chi tiết hiện thực của kiến trúc hệ thống 
 \section{Backend}
 Đề mục này trình bày chi tiết hiện thực backend của ứng dụng webfuzzer, bao gồm giao diện lập trình ứng dụng, định dạng dữ liệu của phần mở rộng Burp Suite, các biến môi trường, cấu hình và mô-đun kiểm thử.
 \subsection{Giao diện lập trình ứng dụng}
-Ứng dụng webfuzzer sử dụng khung thức Express.js để hiện thực một máy chủ web ở backend, dễ dàng định tuyến các \acrshort{api} ở backend và lắng nghe các \acrshort{http} request gọi đến các \acrshort{api} này. Đề mục này mô tả chi tiết hiện thực của các \acrshort{api} thuộc lớp trình điều khiển \texttt{target}, hai lớp trình điều khiển còn lại được hiện thực tương tự. Trước tiên backend nạp đường dẫn gốc của các lớp \acrshort{api} và khởi động một máy chủ lắng nghe ở một cổng xác định bằng các phương thức \texttt{app.use, app.listen} như trong Đoạn mã \ref{lst:server-implement-express} sau.
+Ứng dụng webfuzzer sử dụng khung thức Express.js để hiện thực một máy chủ web ở backend, dễ dàng định tuyến các \acrshort{api} ở backend và lắng nghe các \acrshort{http} request gọi đến các \acrshort{api} này. Đề mục này mô tả chi tiết hiện thực của các \acrshort{api} thuộc lớp trình điều khiển \texttt{target}, hai lớp trình điều khiển còn lại được hiện thực tương tự. Trước tiên backend nạp đường dẫn gốc của các lớp \acrshort{api}, nạp các lớp trình điều khiển vào tương ứng, sau đó khởi động một máy chủ lắng nghe ở một cổng xác định bằng các phương thức \texttt{app.use, app.listen} như trong Đoạn mã \ref{lst:server-implement-express} sau.
 \begin{lstlisting}[style=ES6, label={lst:server-implement-express}, caption={Thiết lập đường dẫn gốc của các \acrshort{api} và khởi động backend}]
 app.use('/', burpRoute(express.Router(), app, burpMethods));
 app.use('/target', targetRoute(express.Router(), app, targetMethods));
@@ -14,7 +14,8 @@ app.listen(port, '0.0.0.0', () => {
     console.log(`webfuzzer is listening on 0.0.0.0:${port}`);
 });
 \end{lstlisting}
-Lấy ví dụ các \acrshort{api} thuộc lớp \texttt{target}, chúng tôi định nghĩa đường dẫn của các \acrshort{api} này bằng cách thêm chúng vào đối tượng \texttt{router} sẵn có của khung thức Express.js. Chúng tôi định nghĩa mỗi đường dẫn \acrshort{api} sẽ làm gì khi được gọi đến như Đoạn mã \ref{lst:add-routes-to-router} sau.
+Chúng tôi sử dụng thư viện Swagger UI Express để xây dựng tài liệu cho giao diện lập trình ứng dụng của webfuzzer. 
+Thư viện này hỗ trợ vẽ ra một trang chứa đầy đủ thông tin của các \acrshort{api} từ tập tin \texttt{swagger.json} trong đường dẫn gốc của thư mục mã nguồn backend, đồng thời cho phép người dùng gọi \acrshort{api} đến địa chỉ máy chủ được thiết lập sẵn trong thuộc tính \texttt{host} của tập tin trên. Lấy ví dụ các \acrshort{api} thuộc lớp \texttt{target}, chúng tôi định nghĩa đường dẫn của các \acrshort{api} này bằng cách thêm chúng vào đối tượng \texttt{router} sẵn có của khung thức Express.js. Chúng tôi định nghĩa mỗi đường dẫn \acrshort{api} sẽ làm gì khi được gọi đến như Đoạn mã \ref{lst:add-routes-to-router} sau.
 \begin{lstlisting}[style=ES6, label={lst:add-routes-to-router}, caption={Định nghĩa đường dẫn cho các \acrshort{api} thuộc lớp target}]
 let targetRoute = (router, expressApp, targetMethods) => {
     router.post('/', targetMethods.createFuzzRequest);
@@ -34,9 +35,6 @@ Ví dụ, câu lệnh \colorbox{gray!30}{\texttt{router.post('/', targetMethods.
   \caption{Các phương thức của lớp targetController}
   \label{fig:implement-target-controller-class}
 \end{figure}
-% \begin{lstlisting}[style=ES6, label={lst:sql-query-with-paging}, caption={\acrshort{api} truy vấn danh sách request mẫu có hỗ trợ phân trang}]
-
-% \end{lstlisting}
 Backend của ứng dụng webfuzzer sẽ làm việc rất nhiều với cơ sở dữ liệu MySQL. Chúng tôi hiện thực các hàm kết nối cơ sở dữ liệu, truy vấn và mở/đóng kết nối sau quá trình thực hiện câu truy vấn, định dạng dữ liệu trả về từ database cũng như các phương thức liên quan đến giao dịch (transaction) trong tập tin \texttt{services/db.js} trong thư mục gốc mã nguồn backend để tiện quản lý và sửa đổi một cách nhất quán. Những \acrshort{api} liên quan đến việc truy vấn danh sách request mẫu và thông tin yêu cầu kiểm thử đều được hỗ trợ thêm các thuộc tính \texttt{limit, offset} và \texttt{total} để truy vấn một khoảng dữ liệu xác định, phục vụ quá trình phân trang các dữ liệu này ở giao diện người dùng như Đoạn mã \ref{lst:sql-query-with-paging} sau.
 \begin{lstlisting}[style=ES6, label={lst:sql-query-with-paging}, caption={\acrshort{api} truy vấn danh sách request mẫu có hỗ trợ phân trang}]
 let endpointList = await mySqlConnection.query(`SELECT * FROM Endpoint ORDER BY Id DESC LIMIT ? OFFSET ?;`, [limit ? parseInt(limit) : 10, offset ? parseInt(offset) : 0]);
@@ -71,7 +69,7 @@ Phần mở rộng Burp Suite cho phép gửi \acrshort{http} request mẫu từ
   "method": "get"
 }
 \end{lstlisting}
-Chuỗi ``\texttt{\textbackslash xa7}'' trong trường \texttt{data.searchFor} biểu thị kí tự ``\$'' trong request mẫu. Các kí tự này thường nằm ở trường \texttt{data} hoặc \texttt{url} trong đoạn dữ liệu JSON để đánh dấu những vị trí chèn payload để ứng dụng web xử lí. 
+Chuỗi ``\texttt{\textbackslash xa7}'' trong trường \texttt{data.searchFor} biểu thị kí tự ``\S'' trong request mẫu. Các kí tự này thường nằm ở trường \texttt{data} hoặc \texttt{url} trong đoạn dữ liệu JSON để đánh dấu những vị trí chèn payload để ứng dụng web xử lí. 
 \subsection{Thiết lập các biến môi trường}
 Các biến môi trường (environment variables) được thiết lập để điều chỉnh hành vi của backend ứng dụng webfuzzer một cách linh hoạt mà không cần phải sửa đổi mã nguồn chương trình. Các biến này thường quy định luồng xử lý và các giá trị khởi tạo của chương trình, việc định nghĩa các biến môi trường một cách hợp lý giúp chương trình trở nên uyển chuyển hơn. Trong backend của ứng dụng webfuzzer, giá trị mặc định của chúng được chứa trong tập tin \texttt{globalConfig.js} trong thư mục gốc của mã nguồn. Người dùng có thể sửa đổi theo nhu cầu và khởi động lại backend để áp dụng các giá trị mới. Bảng \ref{tab:env-variables-backend} dưới đây mô tả chức năng của các biến môi trường.
 \FloatBarrier
@@ -121,11 +119,21 @@ Các biến môi trường (environment variables) được thiết lập để 
     \item \acrshort{lfi}: ứng dụng tập trung phát hiển lỗ hổng này trên các máy chủ web dùng hệ điều hành nhân Unix. Cụ thể ứng dụng sẽ dùng những payload như Hình \ref{fig:lfi-payloads} để cố gắng đọc nội dung tập tin \texttt{/etc/passwd}. Ứng dụng sẽ kiểm tra \acrshort{http} response trả về xem có xuất hiện chuỗi ``\textbf{root:x}'' hoặc khớp với các biểu thức chính quy hay không để kết luận.
     \item Time-based \acrshort{sqli}: ứng dụng phát hiện tốt trên các ứng dụng web sử dụng các hệ quản trị cơ sở dữ liệu MySQL, Microsoft SQL Server và Postgres SQL bằng cách sử dụng các payload có chứa các hàm hoãn thời gian (đã đề cập ở \textbf{Phần 3.2}) của cả ba hệ quản trị cơ sở dữ liệu này, sau đó căn cứ vào thời gian phản hồi của \acrshort{http} response để kết luận.
 \end{itemize}
-Các payload, biểu thức chính quy, kĩ thuật tấn công, làm rối sử dụng trong ứng dụng được tổng hợp từ kinh nghiệm của chúng tôi và tổng hợp từ các kho lưu trữ (repository) mã nguồn trên GitHub \parencite{seclist-fuzzing,0verpwn-fuzzing}, từ nhiều blog chia sẻ cũng như write-up các thử thách cướp cờ (capture the flag - CTFs) của đàn anh đi trước trong ngành, từ các tweet được các kĩ sư bảo mật hàng đầu chia sẻ trên mạng xã hội Twitter,... Sau đó các payload này sẽ được chúng tôi chọn lọc và sửa đổi cho phù hợp với phương pháp kiểm thử của ứng dụng như sau.
+Các payload, biểu thức chính quy, kĩ thuật tấn công, làm rối sử dụng trong ứng dụng được tổng hợp từ kinh nghiệm của chúng tôi và tổng hợp từ các kho lưu trữ (repository) mã nguồn trên GitHub \parencite{seclist-fuzzing,0verpwn-fuzzing}, từ nhiều blog chia sẻ cũng như write-up các thử thách cướp cờ (capture the flag - CTFs) của đàn anh đi trước trong ngành, từ các tweet được các kĩ sư bảo mật chia sẻ trên mạng xã hội Twitter,... Sau đó các payload này sẽ được chúng tôi chọn lọc và sửa đổi cho phù hợp với phương pháp kiểm thử của ứng dụng như sau.
 \begin{itemize}
-    \item Đối với các payload time-based \acrshort{sqli}, chúng tôi sử dụng các payload chứa hai loại hàm chính để hoãn thời gian thực hiện request. Cụ thể là hàm \texttt{sleep} (đối với MySQL, tương tự là \texttt{pg\_sleep} đối với PostgreSQL và \texttt{waitfor delay}, \texttt{waitfor time} đối với Microsoft SQL Server) và hàm \\\texttt{BENCHMARK(10000000,MD5('Y4T0G4M11337'))} để kéo dài thời gian thực hiện request đối với các ứng dụng web mắc lỗi này. Bên cạnh đó, với mỗi payload gốc, chúng tôi áp dụng thêm nhiều cách thức đóng ngoặc, chú thích để tránh gặp lỗi cú pháp khi thực thi đoạn mã SQL ở phía máy chủ.
-    \item Đối với các payload \acrshort{lfi}, chúng tôi thu thập 8 payload mẫu với số lượng các chuỗi ``../'' tăng dần, nhằm tăng độ sâu của đường dẫn để tiếp cận được tập tin \texttt{/etc/passwd} của máy chủ. Từ 8 payload này, chúng tôi áp dụng các kĩ thuật làm rối riêng biệt để sinh ra 264 payload khác. Các kĩ thuật này bao gồm encode các chuỗi kí tự ``../'', ``..\textbackslash'' và ``..\textbackslash /'' theo các tập kí tự (charset) ít phổ biến như ``\texttt{..\%c0\%af}'', ``\texttt{..\%252f}'', ``\texttt{\%\%32\%65}'', ``\texttt{..\%\%32\%66}'',  ``\texttt{..\%25c1\%259c}'',... để vượt qua một số kĩ thuật lọc và làm sạch dữ liệu ở phía server-side của máy chủ ứng dụng web mục tiêu.
+  \item Đối với các payload \acrshort{lfi}, chúng tôi thu thập 8 payload mẫu với số lượng các chuỗi ``../'' tăng dần, nhằm tăng độ sâu của đường dẫn để tiếp cận được tập tin \texttt{/etc/passwd} của máy chủ. Từ 8 payload này, chúng tôi áp dụng các kĩ thuật làm rối riêng biệt để sinh ra 264 payload khác. Các kĩ thuật này bao gồm encode các chuỗi kí tự ``../'', ``..\textbackslash'' và ``..\textbackslash /'' theo các tập kí tự (charset) ít phổ biến như ``\texttt{..\%c0\%af}'', ``\texttt{..\%252f}'', ``\texttt{\%\%32\%65}'', ``\texttt{..\%\%32\%66}'',  ``\texttt{..\%25c1\%259c}'',... để vượt qua một số kĩ thuật lọc và làm sạch dữ liệu ở phía server-side của máy chủ ứng dụng web mục tiêu.
+  \item Đối với các payload time-based \acrshort{sqli}, chúng tôi sử dụng các payload chứa hai loại hàm chính để hoãn thời gian thực hiện request. Cụ thể là hàm \texttt{sleep} (đối với MySQL, tương tự là \texttt{pg\_sleep} đối với PostgreSQL và \texttt{waitfor delay}, \texttt{waitfor time} đối với Microsoft SQL Server) và hàm \\\texttt{BENCHMARK(10000000,MD5('Y4T0G4M11337'))} để kéo dài thời gian thực hiện request đối với các ứng dụng web mắc lỗi này. Bên cạnh đó, với mỗi payload gốc, chúng tôi áp dụng thêm nhiều cách thức đóng ngoặc, chú thích để tránh gặp lỗi cú pháp khi thực thi đoạn mã SQL ở phía máy chủ, ví dụ một số payload trong Đoạn mã \ref{lst:example-sqli-payloads} sau.
 \end{itemize}
+\begin{lstlisting}[language={}, label={lst:example-sqli-payloads}, caption={Ví dụ một số payload kiểm thử lỗ hổng time-based \acrshort{sqli}},captionpos=b,basicstyle=\ttfamily]
+') OR 1337 LIKE BENCHMARK(10000,MD5('Y4T0G4M11337'))--+-
+OR ELT(1337 LIKE 1337,SLEEP(10))--+-
+' ,(SELECT (CASE WHEN (1337 LIKE 1337) THEN (SELECT 1337 FROM PG_SLEEP(10)) ELSE 1/(SELECT 0) END)) AND '
+' ,(SELECT (CASE WHEN (1337 LIKE 1337) THEN SLEEP(10) ELSE 1337 END))--+-
+' RLIKE SLEEP(10)--+-
+' (SELECT * FROM (SELECT(SLEEP(10)))Y4T0G4M11337)--+-
+' WAITFOR DELAY '0:0:10'--+-
+1)) or pg_sleep(*index*)--
+\end{lstlisting}
 Cụ thể cấu hình được áp dụng trong ứng dụng và biểu thức chính quy áp dụng trong trường hợp phát hiện lỗi \acrshort{lfi} được thể hiện ở Đoạn mã \ref{lst:default-fuzz-config} dưới đây.
 \begin{lstlisting}[style=ES6, label={lst:default-fuzz-config}, caption={Cấu hình kiểm thử mặc định}]
 let lfiRegex1 = /Warning: include\(|Warning: unlink\(|for inclusion \(include_path=|fread\(|Failed opening required|Warning: file_get_contents\(|Fatal error: require_once\(|Warning: file_exists\(/g;
@@ -188,9 +196,7 @@ Sau khi có danh sách khuôn mẫu và payload, ta lần lượt thay từng pa
     \item \textbf{req} chứa request mẫu có chứa payload ở dạng chuỗi.
     \item \textbf{timeout} chứa thời gian tối đa đợi ứng dụng web mục tiêu trả về response đối với request này.
 \end{itemize}
-\textbf{Mô-đun xây dựng \acrshort{http} request kiểm thử (\texttt{requestBuilder})} sử dụng thư viện Request
-% \parencite{request-npm} 
-của Node.js hỗ trợ dựng \acrshort{http} request kiểm thử, gửi đến ứng dụng web mục tiêu và nhận response tương ứng trả về. Mô-đun này đầu tiên sẽ phân tích (parse) chuỗi \texttt{req} trong request mẫu thành đối tượng JSON, cung cấp những tham số cần thiết để dựng request. Đoạn mã \ref{lst:example-request-option} sau là một ví dụ về các tham số này.
+\textbf{Mô-đun xây dựng \acrshort{http} request kiểm thử (\texttt{requestBuilder})} sử dụng thư viện Request \parencite{request-npm} của Node.js hỗ trợ dựng \acrshort{http} request kiểm thử, gửi đến ứng dụng web mục tiêu và nhận response tương ứng trả về. Mô-đun này đầu tiên sẽ phân tích (parse) chuỗi \texttt{req} trong request mẫu thành đối tượng JSON, cung cấp những tham số cần thiết để dựng request. Đoạn mã \ref{lst:example-request-option} sau là một ví dụ về các tham số này.
 \begin{lstlisting}[style=ES6, label={lst:example-request-option}, caption={Ví dụ về tham số xây dựng request kiểm thử}]
 { 
   method: 'get',

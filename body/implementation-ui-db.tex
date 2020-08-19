@@ -1,9 +1,7 @@
 \section{Giao diện người dùng}
 Giao diện người dùng của ứng dụng webfuzzer được xây dựng dựa trên bản mẫu (template) React Reduction \parencite{react-reduction-github}. Bản mẫu này được viết trên React.js với sự hỗ trợ của thư viện reactstrap \parencite{reactstrap}, hiện thực sẵn một số thành phần như thanh điều hướng, các nút bấm, ô lựa chọn, bảng biểu, kiểu chữ,... cũng như giao diện mặc định đẹp mắt, dễ dàng chỉnh sửa theo nhu cầu lập trình. Công việc của chúng tôi là hiện thực và thiết lập luồng hoạt động của ba thành phần chính của \acrshort{ui}, đảm nhiệm được việc gọi các \acrshort{api} backend cung cấp và xử lí kết quả trả về, hiển thị được những thông tin cần thiết đồng thời đáp ứng nhu cầu kiểm thử của người dùng như yêu cầu và thiết kế \acrshort{ui} đã đề ra ở \textbf{Chương 5}.\par
 React.js là một khung thức lập trình giao diện người dùng hướng thành phần (component-based), mỗi trang web và các thành phần nhỏ hơn trong trang đa phần đều kế thừa các class có sẵn của React.js và được hiện thực dưới dạng các component. Mỗi component có tập các trạng thái riêng (state) và tập những thuộc tính được truyền vào (props). Bản thân một component trong React.js sẽ chỉ thay đổi được state của nó bằng phương thức \texttt{setState} chứ không thay đổi được giá trị của những props mà nó được nhận. Mỗi khi hàm \texttt{setState} thực hiện xong, phương thức \texttt{render} của component đó sẽ được khởi chạy, tải lại nội dung hiển thị của component theo những giá trị state mới mà không làm mới lại cả trang web. Phương thức \texttt{render} của các component trả về giá trị là các JSX, gồm những đoạn mã \acrshort{html} hoặc các component lồng với JavaScript đặc trưng của khung thức này, tương ứng với nội dung hiển thị của component đó ở giao diện người dùng.\par
-Trước tiên, trong quá trình hiện thực \acrshort{ui} của ứng dụng, chúng tôi sử dụng thư viện Axios
-% \parencite{axios-npm} 
-để tương tác với các \acrshort{api} ở backend ứng dụng webfuzzer. Thư viện này hỗ trợ gửi và nhận các thông điệp \acrshort{http} một cách đơn giản thông qua việc cung cấp các tham số cần thiết như đường dẫn \acrshort{api}, phương thức \acrshort{http} kèm theo body và các tham số nếu có. Những lời gọi \acrshort{api} này nằm trong các đoạn mã xử lí sự kiện của JSX khi người dùng tương tác với giao diện và khi tải nội dung trang. Đoạn mã \ref{lst:call-API-from-UI} sau hiện thực việc gọi API và lấy ra kết quả trả về trong mã nguồn \acrshort{ui}.
+Trước tiên, trong quá trình hiện thực \acrshort{ui} của ứng dụng, chúng tôi sử dụng thư viện Axios \parencite{axios-npm} để tương tác với các \acrshort{api} ở backend ứng dụng webfuzzer. Thư viện này hỗ trợ gửi và nhận các thông điệp \acrshort{http} một cách đơn giản thông qua việc cung cấp các tham số cần thiết như đường dẫn \acrshort{api}, phương thức \acrshort{http} kèm theo body và các tham số nếu có. Những lời gọi \acrshort{api} này nằm trong các đoạn mã xử lí sự kiện của JSX khi người dùng tương tác với giao diện và khi tải nội dung trang. Đoạn mã \ref{lst:call-API-from-UI} sau hiện thực việc gọi API và lấy ra kết quả trả về trong mã nguồn \acrshort{ui}.
 \begin{lstlisting}[style=ES6, label={lst:call-API-from-UI}, caption={Gọi API từ mã nguồn UI}]
 import axios from 'axios';
 const BASE_URL = require('./globalConfig').BASE_URL;
@@ -21,7 +19,7 @@ const callApi = async (endpoint, method = 'get', body) => {
   }
 }
 \end{lstlisting}
-
+Để điều hướng hai trang web chính của \acrshort{ui}, chúng tôi sử dụng các component \texttt{Switch, Route} có sẵn của React.js trong Đoạn mã \ref{lst:routing-at-ui} sau.
 \begin{lstlisting}[style=ES6, label={lst:routing-at-ui}, caption={Điều hướng các trang web trên \acrshort{ui} của webfuzzer}]
 <Switch>
   <MainLayout breakpoint={this.props.breakpoint}>
@@ -33,7 +31,7 @@ const callApi = async (endpoint, method = 'get', body) => {
   <Redirect to="/" />
 </Switch>
 \end{lstlisting}
-Giả sử \acrshort{ui} của ứng dụng webfuzzer được triển khai ở cổng 3000 của máy chủ có địa chỉ IP \texttt{61.28.235.183}. Khi đó, địa chỉ web \texttt{http://61.28.235.183:3000/} sẽ dẫn đến trang bảng điều khiển và đường dẫn \texttt{http://61.28.235.183:3000/result} dẫn đến trang kết quả kiểm thử của ứng dụng
+Giả sử \acrshort{ui} của ứng dụng webfuzzer được triển khai ở cổng 3000 của máy chủ có địa chỉ IP \texttt{61.28.235.183}. Khi đó, địa chỉ web \texttt{http://61.28.235.183:3000/} sẽ dẫn đến component trang bảng điều khiển và đường dẫn \texttt{http://61.28.235.183:3000/result} dẫn đến component trang kết quả kiểm thử của ứng dụng.
 \subsection{Trang bảng điều khiển}
 Đầu tiên khi tải trang bảng điều khiển xuống, người dùng cần có sẵn danh sách các request mẫu và loại lỗ hổng cần kiểm thử để chọn tạo yêu cầu kiểm thử. Để làm được điều này, ta gọi các \acrshort{api} \colorbox{gray!30}{\texttt{GET /}} và \colorbox{gray!30}{\texttt{GET /target/configs}} trong phương thức \texttt{componentDidMount} của component, phương thức này luôn chạy đầu tiên mỗi khi component chứa nó được gọi đến. Đoạn mã \ref{lst:component-did-mount} sau là phương thức \texttt{componentDidMount} của component trang bảng điều khiển, lấy các danh sách cần thiết từ \acrshort{api} và lưu vào state của component này.
 \begin{lstlisting}[style=ES6, label={lst:component-did-mount}, caption={Hiện thực các thành phần của trang bảng điều khiển}]
@@ -83,14 +81,14 @@ Theo thiết kế giao diện đã đề ra ở \textbf{Chương 5}, trang này 
       <EndpointsComponent
         endpointsList={this.state.endpointsList}
         selectEndpoint={this.selectEndpoint}
-        enpointSelected={this.state.enpointSelected}
+        endpointSelected={this.state.endpointSelected}
         getListEndpoints={this.getListEndpoints}
         loading={this.state.loading}
         totalRecord={this.state.totalRecord}
       />
     </Col>
     <Col lg="8">
-      <BaseRequestComponent selectedEndpoint={this.state.enpointSelected} />
+      <BaseRequestComponent selectedEndpoint={this.state.endpointSelected} />
     </Col>
   </Row>
   <Row>
@@ -105,7 +103,7 @@ Theo thiết kế giao diện đã đề ra ở \textbf{Chương 5}, trang này 
         {this.state.loadingSubmit ?
           <AwaitingComponent /> :
           <button
-            disabled={!this.state.enpointSelected.Id}
+            disabled={!this.state.endpointSelected.Id}
             onClick={() => this.submitFuzzRequest()}>Create fuzz request
         </button>}
       </div>
@@ -114,7 +112,7 @@ Theo thiết kế giao diện đã đề ra ở \textbf{Chương 5}, trang này 
   </Row>
 </Page>
 \end{lstlisting}
-Khung chứa danh sách request mẫu tương ứng với component \texttt{EndpointsComponent} và khung hiển thị nội dung request mẫu tương đương ứng component \texttt{BaseRequestComponent}. Mỗi thành phần này được đặt trong một \texttt{Col} riêng và cả hai nằm trong cùng một \texttt{Row} trong mã nguồn để nằm ngang hàng nhau trên \acrshort{ui} như Hình \ref{fig:dashboard-ui} sau.
+Khung chứa danh sách request mẫu tương ứng với component \texttt{EndpointsComponent} và khung hiển thị nội dung request mẫu tương đương ứng component \texttt{BaseRequestComponent}. Component \texttt{EndpointsComponent} sẽ lưu lại ID của request mẫu đang được chọn vào state \texttt{endpointSelected}, đồng thời component \texttt{BaseRequestComponent} sẽ hiển thị nội dung của request mẫu có ID đó ở bên cạnh. Danh sách các request mẫu sẽ được phân thành nhiều trang để đảm bảo bố cục trang web, mỗi trang gồm 5 request mẫu, việc hiện thực cơ chế phân trang này sẽ được để cập ở \textbf{Đề mục 6.2.3}. Mỗi khung trên được đặt trong một component \texttt{Col} riêng và cả hai nằm trong cùng một component \texttt{Row} trong mã nguồn để nằm ngang hàng nhau trên \acrshort{ui} như Hình \ref{fig:dashboard-ui} sau.
 \FloatBarrier
 \begin{sidewaysfigure}[!htb]
     \centering
@@ -123,10 +121,21 @@ Khung chứa danh sách request mẫu tương ứng với component \texttt{Endp
     \label{fig:dashboard-ui}
 \end{sidewaysfigure}
 \FloatBarrier
-Tương tự, khung chọn loại lỗ hổng kiểm thử tương ứng với component \texttt{ListVulnes} và nút tạo yêu cầu kiểm thử ứng với thẻ \texttt{<div className="btn-submit">} trong mã nguồn. Hàm xử lí sự kiện \texttt{onClick} nhấn nút này là hàm \texttt{this.submitFuzzRequest()} có chức năng gọi đến \acrshort{api} \colorbox{gray!30}{\texttt{POST /target}} để tạo yêu cầu kiểm thử dựa trên request mẫu và những loại lỗ hổng đã chọn. Các thuộc tính \texttt{lg="4"} và \texttt{lg="8"} của component \texttt{Col} mô tả chiều rộng của các khung trên \acrshort{ui}. 
-
+Tương tự, khung chọn loại lỗ hổng kiểm thử tương ứng với component \texttt{ListVulnes} và nút tạo yêu cầu kiểm thử ứng với thẻ \texttt{<div className="btn-submit">} trong mã nguồn. Các thuộc tính \texttt{lg="4"} và \texttt{lg="8"} của component \texttt{Col} mô tả chiều rộng của các khung trên \acrshort{ui}. Hàm xử lí sự kiện \texttt{onClick} nhấn nút này là hàm \texttt{this.submitFuzzRequest()}, có chức năng gọi đến \acrshort{api} \colorbox{gray!30}{\texttt{POST /target}} để tạo yêu cầu kiểm thử dựa trên request mẫu và những loại lỗ hổng đã chọn.
 \subsection{Trang kết quả kiểm thử}
-Tương tự như trang bảng điều khiển, phương thức \texttt{componentDidMount} của trang sẽ gọi \acrshort{api}\\\colorbox{gray!30}{\texttt{GET /target/list}} để lấy danh sách các yêu cầu kiểm thử cần hiển thị. Bố cục chính của trang là một bảng gồm nhiều hàng, mỗi hàng bao gồm thông tin cơ bản của một yêu cầu kiểm thử và một nút xổ xuống thông tin chi tiết của yêu cầu đó. Chúng tôi sử dụng thẻ \texttt{table} cùng với các thẻ con \texttt{thead, tr, th} để hiện thực một bảng với các hàng và cột tương tự ngôn ngữ \acrshort{html}. Ngoài ra trang này còn cung cấp một khung tìm kiếm yêu cầu kiểm thử theo \acrshort{url} của request mẫu bằng \acrshort{api} \colorbox{gray!30}{\texttt{GET /target/search}}. Người dùng cũng có thể lọc ra những yêu cầu kiểm thử có lỗ hổng từ cột \texttt{Vulnerable}. Danh sách các yêu cầu kiểm thử là một thuộc tính state nên khi người dùng tìm kiếm hoặc lọc làm thay đổi dánh sách này, component của trang sẽ được render lại.\par
+Tương tự như trang bảng điều khiển, phương thức \texttt{componentDidMount} của trang sẽ gọi \acrshort{api}\\\colorbox{gray!30}{\texttt{GET /target/list}} để lấy danh sách các yêu cầu kiểm thử cần hiển thị. Bố cục chính của trang là một bảng gồm nhiều hàng, mỗi hàng bao gồm thông tin cơ bản của một yêu cầu kiểm thử và một nút xổ xuống thông tin chi tiết của yêu cầu đó, và một khung tìm kiếm yêu cầu kiểm thử theo \acrshort{url} của request mẫu. Chúng tôi sử dụng thẻ \texttt{table} cùng với các thẻ con \texttt{thead, tr, th} để hiện thực một bảng với các hàng và cột tương tự ngôn ngữ \acrshort{html}. Ngoài ra trang này còn cung cấp một khung tìm kiếm yêu cầu kiểm thử theo \acrshort{url} của request mẫu bằng \acrshort{api} \colorbox{gray!30}{\texttt{GET /target/search}}. Người dùng cũng có thể lọc ra những yêu cầu kiểm thử có lỗ hổng từ cột \texttt{Vulnerable}. Danh sách các yêu cầu kiểm thử được chứa trong thuộc tính state \texttt{requestList} nên khi người dùng tìm kiếm hoặc lọc làm thay đổi danh sách này, component của trang sẽ được hiển thị lại. Danh sách các yêu cầu kiểm thử này cũng sẽ được phân trang.\par
+Khung tìm kiếm yêu cầu kiểm thử theo \acrshort{url} của request mẫu được đặt trên góc phải của bảng yêu cầu kiểm thử. Khung này gồm một thẻ \texttt{input} để người dùng nhập vào một phần của \acrshort{url} cần tìm kiếm và một nút bấm bên cạnh để gửi yêu cầu tìm kiếm. Thẻ \texttt{input} sẽ liên tục gọi hàm xử lí sự kiện \texttt{onChangeInput} mỗi khi có thay đổi từ người dùng nhập vào. Sau đó khi người dùng nhấn nút tìm kiếm, hàm xử lí sự kiện \texttt{onSearchSubmit} sẽ gọi \acrshort{api} \colorbox{gray!30}{GET /target/search} để trả về danh sách các yêu cầu kiểm thử thỏa điều kiện tìm kiếm.
+\begin{lstlisting}[style=ES6, label={lst:implement-search-bar}, caption={Hiện thực khung tìm kiếm yêu cầu kiểm thử theo \acrshort{url}}]
+<div>
+  <form onSubmit={(e) => this.onSearchSubmit(e)}>
+    <input placeholder="Enter url" onChange={(event) => this.onChangeInput(event)} />
+    <button type="submit">
+      <i className="fa fa-search" aria-hidden="true"></i>
+    </button>
+  </form>
+</div>
+\end{lstlisting}
+Giao diện chính của trang kết quả kiểm thử gồm hai thành phần trên được mô tả như Hình \ref{fig:result-ui-ui} sau.
 \FloatBarrier
 \begin{sidewaysfigure}[!htb]
     \centering
@@ -142,6 +151,30 @@ Các thông tin cơ bản của một yêu cầu kiểm thử bao gồm ID, đư
   \caption{Thông tin chi tiết của một yêu cầu kiểm thử}
   \label{fig:request-detail}
 \end{figure}
+Chúng tôi hiện thực khung thông tin chi tiết của một yêu cầu kiểm thử trong component \texttt{RequestDetailComponent}. Mỗi thông tin hiển thị trong component này được đặt trong một thẻ \texttt{div} lần lượt từ trên xuống. Khung nội dung của request mẫu được chúng tôi tái sử dụng định dạng \acrshort{css} từ khung nội dung request mẫu ở trang bảng điều khiển. Khi người dùng nhấn nút ``\texttt{Show payload}'' bên cạnh loại lổ hổng ở khung kết quả kiểm thử, những payload phát hiện được lỗ hổng đó sẽ hiện ra. Chúng tôi chỉ lọc ra payload, những chuỗi so trùng và kết quả kiểm tra thời gian thực thi request kiểm thử (nếu có) trong kết quả kiểm thử tương ứng để hiển thị. Cuối cùng là nút (tái) thực thi một yêu cầu kiểm thử, nút này sẽ gọi đến \acrshort{api} \colorbox{gray!30}{\texttt{GET /fuzz}} thông qua hàm xử lí sự kiện \texttt{executeFuzzRequest} khi người dùng nhấn nút. Các thành phần trên của component \texttt{RequestDetailComponent} được hiện thực thông qua Đoạn mã \ref{lst:implement-RequestDetailComponent} sau.
+\begin{lstlisting}[style=ES6, label={lst:implement-RequestDetailComponent}, caption={Hiện thực một số thành phần của component RequestDetailComponent}]
+<div className="detail-item-title">Base request</div>
+<div className="detail-item-content"><pre className="base-request">{JSON.stringify(JSON.parse(baseRequest), null, 2).replace(/\\\\xa7/gi, '§')}</pre></div>
+...
+<div className="result-content-item-title">Payload</div>
+  {element.value ? element.value.map((item, idx) => (
+    <div key={idx} className="result-content-item">
+      <div className="result-content-item-content">{item.payload}
+        <span style={{ marginLeft: '3rem' }} >
+          {item.timebased ? 'Timebased: true' : null}
+        </span>
+        <span style={{ marginLeft: '3rem' }} >
+          {item.matchList.length > 0 ? 'Match: ' + item.matchList.toString() : null}
+        </span>
+      </div>
+    </div>
+  )) : ''}
+</div>
+...
+<div className="detail-item">
+  <button disabled={this.checkDisableButton(requestId)} onClick={async () => this.executeFuzzRequest()}>{status == 'Completed' || status == 'Processing' ? 'Re-execute' : 'Execute'} fuzz request</button>
+</div>
+\end{lstlisting}
 \subsection{Thanh điều hướng và các thành phần khác}
 Thanh điều hướng của \acrshort{ui} được hiện thực bằng các component \texttt{Nav, Navbar, NavItem, NavLink} của thư viện reactstrap. Thuộc tính \texttt{vertical} của component \texttt{Nav} sẽ cố định thanh điều hướng dọc theo lề trái của trang web. Hai trang bảng điều khiển, kết quả kiểm thử được đưa vào thành hai thẻ trên thanh điều hướng dưới dạng các component \texttt{NavLink} như Đoạn mã \ref{lst:implement-nav-bar} sau. Kết quả hiện thực thanh điều hướng và thông báo đẩy được thể hiện trong Hình \ref{fig:notification-example}.
 \begin{lstlisting}[style=ES6, label={lst:implement-nav-bar}, caption={Các thuộc tính props truyền vào component Nav}]
