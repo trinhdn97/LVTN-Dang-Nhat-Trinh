@@ -1,6 +1,4 @@
-\chapter{Kiến thức nền tảng}
-Chương này trình bày về hai phương pháp kiểm thử bảo mật phố biến, hiệu quả nhất hiện nay trên phần mềm nói chung và ứng dụng web nói riêng, đó là fuzzing và kiểm thử xâm nhập.
-\section{Kiểm thử xâm nhập}
+\section{Phương pháp kiểm thử xâm nhập}
 Kiểm thử xâm nhập (penetration testing) \parencite{vimpari2015evaluation} là phương pháp kiểm tra bảo mật trong đó các kĩ sư cố gắng tìm ra, khai thác và đánh giá mức độ nghiêm trọng của các lỗ hổng bảo mật dựa trên những hiểu biết của họ về thiết kế lẫn đặc điểm hiện thực của một hệ thống ứng dụng cụ thể. Quy trình kiểm thử xâm nhập thường được tiến hành bởi đội đỏ (red team) của đội ngũ bảo mật của ứng dụng, hoặc bởi một tổ chức thứ ba chuyên về lĩnh vực này. Phương pháp này đặc biệt hiệu quả đối với các ứng dụng phức tạp gồm nhiều thành phần tổ hợp lại thành một hệ thông hoàn chỉnh như mô hình các ứng dụng web hiện nay. Đội ngũ kiểm thử sẽ xem xét toàn thể ứng dụng từ phía người dùng (client-side) và máy chủ (server-side), cố gắng can thiệp vào hoạt động của các thành phần nằm sâu trong back-end như các tập tin và tiến trình hệ thống, cơ sở dữ liệu, thậm chí cả việc kiểm thử bảo mật vật lý của hệ thống. Bằng cách tiến hành kiểm thử xâm nhập trong môi trường thực tế, đội ngũ bảo mật của hệ thống ứng dụng có thể vá lỗi và phòng chống những lỗ hổng bảo mật trong tương lai trước khi bị tin tặc khai thác.\par
 Theo Weidman và Georgia \parencite{weidman2014penetration}, một cuộc kiểm thử xâm nhập hệ thống ứng dụng sẽ trải qua lần lượt các bước như sau.
 \begin{enumerate}
