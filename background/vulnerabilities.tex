@@ -5,7 +5,7 @@ Trong phạm vi hiện thực công cụ, tôi chỉ tập trung vào việc tì
 % https://www.rcesecurity.com/2017/08/from-lfi-to-rce-via-php-sessions/?fbclid=IwAR1VcA--iI7uRzwcqGk9JdcgHFZugVVNA1X2bLTSahRMhJy8Dk69gflKi8k
 % https://outpost24.com/blog/from-local-file-inclusion-to-remote-code-execution-part-1
 Lỗ hổng \acrfull{lfi} \parencite{portswigger-directory-traversal, sullivan2011web}, còn có tên khác là Directory Traversal, là lỗ hổng bảo mật trên ứng dụng web cho phép tin tặc đọc bất kì tập tin nào trên máy chủ mà ứng dụng web đang chạy trên. Những tập tin này có thể là mã nguồn, hình ảnh, dữ liệu hoặc thậm chí cả những tập tin hệ thống nhạy cảm. Trong một vài trường hợp xử lí phân quyền không tốt ở phía máy chủ, tin tặc còn có thể tạo thêm tập tin mới gây nên sự thay đổi dữ liệu và hành vi của ứng dụng, hoặc hắn có thể thực thi mã (\acrshort{rce}) từ phía máy chủ để chiếm quyền điều khiển hệ thống. Đoạn mã \ref{lst:php-lfi} dưới đây mô tả một điểm cuối của trang web ``\texttt{http://vuln-web.com/}'' có lỗ hổng \acrshort{lfi}.
-\begin{lstlisting}[language=php, label={lst:php-lfi},caption={Đoạn mã PHP có lỗ hổng Local File Inclusion}]
+\begin{lstlisting}[style=PHP, label={lst:php-lfi},caption={Đoạn mã PHP có lỗ hổng Local File Inclusion}]
 /**
 * Get the filename from a GET input
 * Example - http://vuln-web.com/?file=filename.php
@@ -29,7 +29,7 @@ Bằng cách nhận vào tham số \texttt{\$file} từ đường dẫn \acrshor
 \section{Time-based Structured Query Language Injection}
 Hầu hết các kĩ thuật tấn công ứng dụng web đều tuân theo mô-típ đánh lừa ứng dụng web để thực hiện những hành động nguy hiểm thay tin tặc. Tin tặc không thể lấy được cookies của người dùng một cách chính quy nhưng có thể đánh lừa để trình duyệt web nạn nhân cung cấp cho hắn thông qua lỗ hổng \acrlong{xss} (\acrshort{xss}). Tin tặc cũng không thể tùy tiện truy xuất bất cứ tập tin nào trên máy chủ web nhưng hắn có thể lừa ứng dụng web làm việc đó thông qua lỗ hổng \acrshort{lfi}. Tương tự, tin tặc không thể trực tiếp truy cập và trích xuất cơ sở dữ liệu của ứng dụng web nhưng hắn có thể lừa ứng dụng web làm việc đó thông qua lỗ hổng \acrfull{sqli}. Phần này trình bày về khái niệm lỗ hổng \acrshort{sqli} nói chung và time-based \acrshort{sqli} nói riêng.\par
 Lỗ hổng \acrfull{sqli} \parencite{li2011survey,sullivan2011web} cho phép tin tặc can thiệp vào các câu truy vấn \acrshort{sql} mà ứng dụng web dùng để tương tác với cơ sở dữ liệu. Thông thường việc này sẽ cho phép tin tặc đọc những dữ liệu mà hắn không có quyền, ví dụ như dữ liệu của những người dùng khác trong ứng dụng hoặc kể cả những dữ liệu mà ứng dụng đó không có quyền truy cập. Trong nhiều trường hợp tin tặc còn có thể sửa đổi hoặc sao chép (dump) những dữ liệu này, dẫn đến rủi ro bị đánh cắp dữ liệu và những hậu quả lâu dài cho nhà cung cấp ứng dụng web. Trong một vài điều kiện đặc biệt hơn, tin tặc còn có thể leo thang một cuộc tấn công \acrshort{sqli} để thỏa hiệp máy chủ ứng dụng web đang vận hành hoặc thực hiện một cuộc tấn công từ chối dịch vụ (\acrshort{dos} - \acrlong{dos}). Đoạn mã \ref{lst:php-sqli} sau đây\footnote{\href{http://websec.fr/level01/source.php}{Nguồn: http://websec.fr/level01/source.php}} là một ví dụ.
-\begin{lstlisting}[language=php, label={lst:php-sqli},caption={Đoạn mã PHP có lỗ hổng SQL Injection}]
+\begin{lstlisting}[style=PHP, label={lst:php-sqli},caption={Đoạn mã PHP có lỗ hổng SQL Injection}]
 public function doQuery($injection) {
     $pdo = new SQLite3('database.db', SQLITE3_OPEN_READONLY);
     
