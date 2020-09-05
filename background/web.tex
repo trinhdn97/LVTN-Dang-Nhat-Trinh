@@ -10,7 +10,7 @@ Giao thức truyền tải siêu văn bản (hypertext transfer protocol - \acrs
   \caption[Hai loại thông điệp HTTP]{Hai loại thông điệp \acrshort{http}\protect\footnotemark}
   \label{fig:http}
 \end{figure}
-\footnotetext{Nguồn: https://www.ntu.edu.sg/home/ehchua/programming/webprogramming/HTTP\_Basics.html}
+\footnotetext{\href{https://www.ntu.edu.sg/home/ehchua/programming/webprogramming/HTTP_Basics.html}{Nguồn: https://www.ntu.edu.sg/home/ehchua/programming/webprogramming/HTTP\_Basics.html}}
 \textbf{Thông báo yêu cầu HTTP} (HTTP request) được gửi từ người dùng đến máy chủ để yêu cầu máy chủ thực thi một hành động nào đó. \acrshort{http} request gồm các thành phần:
 \begin{itemize}
     \item \textbf{Dòng bắt đầu (start line)} ví dụ như \colorbox{gray!30}{\texttt{POST / HTTP/1.1}}, \colorbox{gray!30}{\texttt{GET /1-duck.png HTTP/1.0}},\\\colorbox{gray!30}{\texttt{HEAD /items.html?productId=1337 HTTP/1.1}}, \colorbox{gray!30}{\texttt{OPTIONS /index.html HTTP/1.0}}. Dòng bắt \\đầu này bao gồm 3 thành phần:
@@ -23,9 +23,10 @@ Giao thức truyền tải siêu văn bản (hypertext transfer protocol - \acrs
         \begin{figure}[H]
           \centering
             \includegraphics[width=\textwidth,keepaspectratio=true]{images/HTTP-request-headers.png}
-          \caption[Các thành phần trong tiêu đề của một \acrshort{http} request]{Các thành phần trong tiêu đề của một \acrshort{http} request \protect\footnote{\href{https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP}{https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP}
+          \caption[Các thành phần trong tiêu đề của một \acrshort{http} request]{Các thành phần trong tiêu đề của một \acrshort{http} request\protect\footnotemark}
           \label{fig:HTTP-request-headers}
         \end{figure}
+        \footnotetext{\href{https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP}{Nguồn: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP}}
         \begin{itemize}
             \item \textbf{Tiêu đề chung (general headers)} gồm những quy tắc/phiên bản được áp dụng lên toàn bộ request.
             \item \textbf{Tiêu đề request (request headers)} làm rõ request bằng việc đặc tả kĩ hơn về bối cảnh yêu cầu cũng như những giới hạn có điều kiện trên request đó.
@@ -37,9 +38,10 @@ Giao thức truyền tải siêu văn bản (hypertext transfer protocol - \acrs
 \begin{figure}[H]
   \centering
     \includegraphics[width=\textwidth,keepaspectratio=true]{images/HTTP-response-headers.png}
-  \caption[Các thành phần trong tiêu đề của một \acrshort{http} response]{Các thành phần trong tiêu đề của một \acrshort{http} response \protect\footnote{\href{https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP}{https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP}
+  \caption[Các thành phần trong tiêu đề của một \acrshort{http} response]{Các thành phần trong tiêu đề của một \acrshort{http} response\protect\footnotemark}
   \label{fig:HTTP-response-headers}
 \end{figure}
+\footnotetext{\href{https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP}{Nguồn: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP}}
 
 % TODO: có thế sẽ viết thêm về cả CSP và CORS?
 % \subsection{Chính sách cùng nguồn gốc}
