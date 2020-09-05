@@ -196,7 +196,7 @@ Sau khi có danh sách khuôn mẫu và payload, ta lần lượt thay từng pa
     \item \textbf{req} chứa request mẫu có chứa payload ở dạng chuỗi.
     \item \textbf{timeout} chứa thời gian tối đa đợi ứng dụng web mục tiêu trả về response đối với request này.
 \end{itemize}
-\textbf{Mô-đun xây dựng \acrshort{http} request kiểm thử (\texttt{requestBuilder})} sử dụng thư viện Request\footnote{\href{https://www.npmjs.com/package/request}{https://www.npmjs.com/package/request}} của Node.js hỗ trợ dựng \acrshort{http} request kiểm thử, gửi đến ứng dụng web mục tiêu và nhận response tương ứng trả về. Mô-đun này đầu tiên sẽ phân tích (parse) chuỗi \texttt{req} trong request mẫu thành đối tượng JSON, cung cấp những tham số cần thiết để dựng request. Đoạn mã \ref{lst:example-request-option} sau là một ví dụ về các tham số này.
+\textbf{Mô-đun xây dựng \acrshort{http} request kiểm thử (\texttt{requestBuilder})} sử dụng thư viện Request\footnote{\href{https://www.npmjs.com/package/request}{Nguồn: https://www.npmjs.com/package/request}} của Node.js hỗ trợ dựng \acrshort{http} request kiểm thử, gửi đến ứng dụng web mục tiêu và nhận response tương ứng trả về. Mô-đun này đầu tiên sẽ phân tích (parse) chuỗi \texttt{req} trong request mẫu thành đối tượng JSON, cung cấp những tham số cần thiết để dựng request. Đoạn mã \ref{lst:example-request-option} sau là một ví dụ về các tham số này.
 \begin{lstlisting}[style=ES6, label={lst:example-request-option}, caption={Ví dụ về tham số xây dựng request kiểm thử}]
 { 
   method: 'get',
