@@ -1,7 +1,7 @@
 \cleardoublepage
 \appendix
 \chapter{Hướng dẫn sử dụng phần mở rộng Burp Suite}
-Trong trường hợp lần đầu sử dụng ứng dụng, ta cần cài đặt phần mở rộng\footnote{Tham khảo tại https://portswigger.net/support/how-to-install-an-extension-in-burp-suite} \texttt{y4t0g4m1.jar} trong đường dẫn gốc của mã nguồn backend vào công cụ Burp Suite. Giao diện chính của phần mở rộng trên Burp Suite được mô tả như Hình \ref{fig:main-burp-extension-interface} dưới đây, chỉ đơn giản gồm một textbox để thiết lập địa chỉ máy chủ ứng dụng nhận request mẫu. Mặc định giá trị của trường này là \texttt{http://61.28.235.183:13336}, là địa chỉ backend ứng dụng được triển khai trên \acrshort{vps} với cổng mặc định là 13336. \acrshort{ui} của webfuzzer hiện đang được triển khai trên đường dẫn \texttt{http://61.28.235.183:3000}.
+Trong trường hợp lần đầu sử dụng ứng dụng, ta cần cài đặt phần mở rộng\footnote{Tham khảo tại https://portswigger.net/support/how-to-install-an-extension-in-burp-suite} \texttt{y4t0g4m1.jar} trong đường dẫn gốc của mã nguồn backend vào công cụ Burp Suite. Giao diện chính của phần mở rộng trên Burp Suite được mô tả như Hình \ref{fig:main-burp-extension-interface} dưới đây, chỉ đơn giản gồm một textbox để thiết lập địa chỉ máy chủ ứng dụng nhận request mẫu. Mặc định giá trị của trường này là \href{http://61.28.235.183:13336}{\texttt{http://61.28.235.183:13336}}, là địa chỉ backend ứng dụng được triển khai trên \acrshort{vps} với cổng mặc định là 13336. \acrshort{ui} của webfuzzer hiện đang được triển khai trên đường dẫn \href{http://61.28.235.183:3000}{\texttt{http://61.28.235.183:3000}} tại thời điểm hoàn thành luận văn.
 \begin{figure}[H]
   \centering
     \includegraphics[width=\textwidth,keepaspectratio=true]{images/main-burp-extension-interface.png}

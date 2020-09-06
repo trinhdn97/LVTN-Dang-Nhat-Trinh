@@ -50,7 +50,7 @@ Từng request kiểm thử chứa payload tương ứng sẽ được hiển th
     \end{tabular}
 \end{table}
 \FloatBarrier
-Nội dung request mẫu và kết quả kiểm thử các request này trên hai ứng dụng lần lượt được trình bày bằng các Đoạn mã và các Bảng dưới đây.
+Nội dung request mẫu và kết quả kiểm thử các request này trên hai ứng dụng lần lượt được trình bày bằng các Đoạn mã và các Bảng dưới đây. Danh sách đầy đủ các payload phát hiện được lỗ hổng ứng với mỗi đối tượng kiểm thử có thể được tham khảo tại \href{http://61.28.235.183:3000/result}{http://61.28.235.183:3000/result}.
 \begin{lstlisting}[style=ES6, label={lst:base-request-1}, caption={Request mẫu 1 có lỗ hổng \acrshort{lfi}}]
 {
     "url": "http://testphp.vulnweb.com:80/showimage.php?file=§./pictures/1.jpg§",
