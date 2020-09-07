@@ -1,5 +1,5 @@
 % \documentclass[a4paper,13pt,twoside]{report}
-\documentclass[a4paper,13pt]{report}
+\documentclass[a4paper,12pt]{report}
 \usepackage{vntex}
 \usepackage[left=3cm,right=2cm,top=2cm,bottom=3cm]{geometry}
 \usepackage[acronyms]{glossaries}
@@ -33,27 +33,26 @@
 % 		\end{tabular}
     \end{center}
 
-\vspace{1.5cm}
+\vspace{1.5 cm}
 
     \begin{picture}(50,0)(0,0)
    	    \put(0,-30){\includegraphics[width=20mm, height=20mm]{images/hcmut.PNG}}
     \end{picture}
 
-\vspace{1.5cm}
+\vspace{1.5 cm}
 
 \begin{center}
 \begin{tabular}{c}
-\multicolumn{1}{c}{\textbf{{\LARGE BÁO CÁO LUẬN VĂN TỐT NGHIỆP}}}\\
-\\
+\multicolumn{1}{c}{\textbf{{\Large LUẬN VĂN TỐT NGHIỆP}}}\\
 \\
 \hline
 \\
-\multicolumn{1}{l}{\textbf{{\LARGE Đề tài}}}\\
+\textbf{{\LARGE XÂY DỰNG ỨNG DỤNG}} \\
+\textbf{{\LARGE KIỂM THỬ BẢO MẬT ỨNG DỤNG WEB}} \\
+\textbf{{\LARGE THÔNG QUA THÔNG ĐIỆP HTTP}} \\
 \\
-\textbf{{\Large Xây dựng ứng dụng}} \\
-\textbf{{\Large kiểm thử bảo mật ứng dụng web}} \\
-\textbf{{\Large thông qua thông điệp HTTP}} \\
-
+\textbf{{\Large Building a HTTP message-based fuzzer}} \\
+\textbf{{\Large for web application security testing}} \\
 \\
 \hline
 \\
@@ -65,17 +64,19 @@
 
 % \begin{table}[h]
 \begin{tabular}{lllll}
-\hspace{3 cm} \textbf{Hội đồng LVTN:}& &Khoa học máy tính\\\addlinespace
+\hspace{1 cm} \textbf{Hội đồng LVTN:}& &Khoa học máy tính\\\addlinespace
 
-\hspace{3 cm} \textbf{Tập thể hướng dẫn:}\\\addlinespace
-\hspace{4 cm} TS. Nguyễn An Khương &---& Khoa KH\&KT Máy tính, ĐHBK  \\
-\hspace{4 cm} Anh Đỗ Đình Huân &---& VNG Corporation \\\addlinespace
+\hspace{1 cm} \textbf{Tập thể hướng dẫn:}\\\addlinespace
+\hspace{2 cm} TS. Nguyễn An Khương &---& Khoa KH\&KT Máy tính, ĐHBK  \\
+\hspace{2 cm} Kỹ sư Đỗ Đình Huân &---& VNG Corporation \\
+\hspace{2 cm} ThS. Nguyễn Cao Đạt &---& Khoa KH\&KT Máy tính, ĐHBK  \\
+\hspace{2 cm} ThS. Nguyễn Thanh Tùng &---& Khoa KH\&KT Máy tính, ĐHBK  \\\addlinespace
 
-\hspace{3 cm} \textbf{Giáo viên phản biện:}\\\addlinespace
-\hspace{4 cm} TS. Lê Thành Sách &---& Khoa KH\&KT Máy tính, ĐHBK  \\\addlinespace
+\hspace{1 cm} \textbf{Giáo viên phản biện:}\\\addlinespace
+\hspace{2 cm} TS. Lê Thành Sách &---& Khoa KH\&KT Máy tính, ĐHBK  \\\addlinespace
 
-\hspace{3 cm} \textbf{Sinh viên thực hiện:} \\\addlinespace
-\hspace{4 cm} Đặng Nhật Trình &---& 1513685 \\
+\hspace{1 cm} \textbf{Sinh viên thực hiện:} \\\addlinespace
+\hspace{2 cm} Đặng Nhật Trình &---& 1513685
 
 \end{tabular}
 % \end{table}
@@ -95,7 +96,7 @@
 
 
 \body
-% \addcontentsline{toc}{chapter}{Danh mục viết tắt}
+\addcontentsline{toc}{chapter}{Danh mục viết tắt}
 \printglossary[type=\acronymtype, title=Danh mục viết tắt, toctitle=Danh mục viết tắt]
 \input{introduction/introduction}
 \input{background/web.tex}

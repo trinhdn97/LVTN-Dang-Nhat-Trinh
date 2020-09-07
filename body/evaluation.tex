@@ -50,7 +50,7 @@ Từng request kiểm thử chứa payload tương ứng sẽ được hiển th
     \end{tabular}
 \end{table}
 \FloatBarrier
-Nội dung request mẫu và kết quả kiểm thử các request này trên hai ứng dụng lần lượt được trình bày bằng các Đoạn mã và các Bảng dưới đây. Danh sách đầy đủ các payload phát hiện được lỗ hổng ứng với mỗi đối tượng kiểm thử có thể được tham khảo tại \href{http://61.28.235.183:3000/result}{http://61.28.235.183:3000/result}.
+Nội dung request mẫu và kết quả kiểm thử các request này trên hai ứng dụng lần lượt được trình bày bằng các Đoạn mã và các Bảng dưới đây. Danh sách đầy đủ các payload phát hiện được lỗ hổng ứng với mỗi đối tượng kiểm thử có thể được tham khảo tại \href{http://61.28.235.183:3000/result}{\texttt{http://61.28.235.183:3000/result}}.\par
 \begin{lstlisting}[style=ES6, label={lst:base-request-1}, caption={Request mẫu 1 có lỗ hổng \acrshort{lfi}}]
 {
     "url": "http://testphp.vulnweb.com:80/showimage.php?file=§./pictures/1.jpg§",
@@ -74,6 +74,7 @@ Nội dung request mẫu và kết quả kiểm thử các request này trên ha
     \end{tabular}
 \end{table}
 \FloatBarrier
+Request mẫu 1 được dùng để truy vấn một tập tin ảnh trên máy chủ web\\\href{http://testphp.vulnweb.com/}{\texttt{http://testphp.vulnweb.com/}} chứa nhiều lỗ hổng bảo mật, chuyên dùng cho mục đích thử nghiệm, đánh giá hiệu quả của các công cụ kiểm thử. Webfuzzer phát hiện lỗ hổng \acrshort{lfi} bằng một payload giống với Burp Suite với thời gian chỉ chậm hơn một giây.
 \begin{lstlisting}[style=ES6, label={lst:base-request-2}, caption={Request mẫu 2 có lỗ hổng time-based \acrshort{sqli}}]
 {
     "url": "http://testphp.vulnweb.com:80/search.php?test=query",
@@ -101,6 +102,7 @@ Nội dung request mẫu và kết quả kiểm thử các request này trên ha
     \end{tabular}
 \end{table}
 \FloatBarrier
+Request mẫu 2 kiểm thử tính năng tìm kiếm của trang web trên. Bằng cách chèn payload kiểm thử vào nội dung tìm kiếm, webfuzzer phát hiện được lỗ hổng time-based \acrshort{sqli} thông qua 14 payload giống Burp Suite, với thời gian thậm chí nhỉnh hơn.
 \begin{lstlisting}[style=ES6, label={lst:base-request-3}, caption={Request mẫu 3}]
 {
     "url": "http://www.daotaonlyt.edu.vn:80/img/§§",
@@ -124,6 +126,7 @@ Nội dung request mẫu và kết quả kiểm thử các request này trên ha
     \end{tabular}
 \end{table}
 \FloatBarrier
+Đối với request mẫu 3, chúng tôi cố gắng khai thác lỗ hổng \acrshort{lfi} trên trang web\\ \href{http://www.daotaonlyt.edu.vn}{\texttt{http://www.daotaonlyt.edu.vn}} ở một yêu cầu truy vấn hình ảnh tương tự request mẫu 1. Cả hai ứng dụng đều không phát hiện được lỗ hổng nhưng thời gian thực thi của webfuzzer nhanh hơn khá nhiều so với Burp Suite.
 \begin{lstlisting}[style=ES6, label={lst:base-request-4}, caption={Request mẫu 4 có lỗ hổng time-based \acrshort{sqli}}]
 {
     "url": "http://artistclub.vn:80/",
@@ -150,6 +153,7 @@ Nội dung request mẫu và kết quả kiểm thử các request này trên ha
     \end{tabular}
 \end{table}
 \FloatBarrier
+Đối với request mẫu 4, chúng tôi cố gắng khai thác lỗ hổng time-based \acrshort{sqli} ở khung điền email đăng kí nhận thông báo trên trang web \href{http://www.daotaonlyt.edu.vn}{\texttt{http://www.daotaonlyt.edu.vn}}. Hai ứng dụng phát hiện được lỗ hổng bằng các payload giống hệt nhau, nhưng thời gian thực thi của webfuzzer chậm hơn Burp Suite khoảng 3 giây.
 \begin{lstlisting}[style=ES6, label={lst:base-request-5}, caption={Request mẫu 5}]
 {
     "url": "http://artistclub.vn:80/upload/sanpham/
@@ -197,6 +201,7 @@ Nội dung request mẫu và kết quả kiểm thử các request này trên ha
     \end{tabular}
 \end{table}
 \FloatBarrier
+Tương tự như request mẫu 3 và 5, cả hai ứng dụng đều không phát hiện thấy lỗ hổng \acrshort{lfi} và time-based \acrshort{sqli} trên các trang web mục tiêu ở request mẫu 6. Nhìn chung cả ba trường hợp không phát hiện được lỗ hổng thì thời gian thực thi của webfuzzer luôn nhanh hơn Burp Suite.
 \begin{lstlisting}[style=ES6, label={lst:base-request-7}, caption={Request mẫu 7 có lỗ hổng time-based \acrshort{sqli}}]
 {
     "url": "http://www.monitoringris.org:80/index.php?id=30§§",
@@ -290,5 +295,6 @@ Nội dung request mẫu và kết quả kiểm thử các request này trên ha
     \end{tabular}
 \end{table}
 \FloatBarrier
+Đối với các request mẫu 7, 8, 9 và 10 còn lại, webfuzzer đều phát hiện được lỗ hổng time-based \acrshort{sqli} bằng những payload giống với Burp Suite. Xét về thời gian kiểm thử, webfuzzer đều chậm hơn Burp Suite một vài giây.\par
 Qua quá trình kiểm thử các request mẫu trên, chúng tôi nhận thấy các payload phát hiện lỗi ở cả hai ứng dụng đều giống hệt nhau, đây là thành công lớn nhất trong quá trình hiện thực webfuzzer, ứng dụng này đã mô phỏng thành công một phần chức năng \texttt{Intruder} của Burp Suite như hướng phát triển công cụ đã đề ra ở \textbf{Chương 4}. Thời gian kiểm thử của webfuzzer cũng xấp xỉ Burp Suite, chỉ chậm hơn khoảng 2-10 giây tùy vào mỗi request mẫu, hơn nữa webfuzzer có phần nhanh hơn Burp Suite ở các request mẫu mà cả hai ứng dụng đều không phát hiện được lỗ hổng. Vì vậy ngoài lý do không thể tránh khỏi về kết nối, đường truyền giữa các lần kiểm thử, chúng tôi nhận định khoảng thời gian chênh lệch trong việc kiểm thử các request mẫu có lỗ hổng phần lớn đến từ việc lưu trữ kết quả kiểm thử vào cơ sở dữ liệu, do đó chênh lệch thời gian vài giây là một khoản đánh đổi chấp nhận được. Thời gian phản hồi của các \acrshort{http} request gửi đến backend webfuzzer được triển khai ở máy chủ nội bộ (\href{http://localhost:13336/}{\texttt{http://localhost:13336/}}) hoặc ở \acrshort{vps} (\href{http://61.28.235.183:13336/}{\texttt{http://61.28.235.183:13336/}}) chỉ dao động trong khoảng 20-200 mili giây.\par
 Xét về trải nghiệm người dùng, ứng dụng webfuzzer trực quan và tiện lợi hơn Burp Suite rất nhiều. Thay vì việc thiết lập cấu hình kiểm thử và nhận diện lỗ hổng thủ công ở Burp Suite như đã mô tả ở \textbf{Đề mục 7.1}, webfuzzer đã tích hợp sẵn khả năng nhận diện lỗ hổng trong mô-đun kiểm thử, đồng thời tổng hợp sẵn những cấu hình kiểm thử tiện dụng, dễ dàng chỉnh sửa. Người dùng chỉ việc chọn request mẫu và loại lỗ hổng, kết quả kiểm thử sẽ được ứng dụng webfuzzer cung cấp chi tiết, request kiểm thử chứa payload nào bị timeout, hay trả về response có chứa chuỗi so trùng nào, phát hiện được lỗ hổng gì. Tổng kết từ các nhận định trên, chúng tôi đánh giá ứng dụng webfuzzer đã được hiện thực hoàn chỉnh ở mức chấp nhận được, thỏa mãn yêu cầu thiết kế hệ thống.

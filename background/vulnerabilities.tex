@@ -1,4 +1,4 @@
-\chapter{Một số lớp lỗ hổng bảo mật trên ứng dụng web}
+\chapter{Tổng quan về một số lớp lỗ hổng bảo mật trên ứng dụng web}
 % TODO: mô tả thêm những hướng có thể dựa trên background ở trên nhưng chỉ tập trung vào application layer và HTTP request/response
 Trong phạm vi hiện thực công cụ, tôi chỉ tập trung vào việc tìm hiểu và phát hiện hai lỗ hổng bảo mật ở tầng ứng dụng của ứng dụng web, \acrfull{lfi} và time-based \acrlong{sqli} (SQLI). Đầu tiên, tôi sẽ trình bày về \acrfull{lfi}, một trong những lỗ hổng bảo mật phổ biến nhất trên ứng dụng web, luôn góp mặt trong top 10 lỗ hổng nguy hiểm nhất theo OWASP \parencite{owasp-top-10} nhiều năm gần đây. Nội dung phần này bao gồm làm rõ khái niệm \acrshort{lfi} và phân tích các kĩ thuật khai thác lỗ hổng bảo mật này.
 \section{Local File Inclusion}
