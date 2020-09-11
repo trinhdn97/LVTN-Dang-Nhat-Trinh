@@ -13,7 +13,7 @@ Giao thức truyền tải siêu văn bản (hypertext transfer protocol - \acrs
 \footnotetext{\href{https://www.ntu.edu.sg/home/ehchua/programming/webprogramming/HTTP_Basics.html}{Nguồn: https://www.ntu.edu.sg/home/ehchua/programming/webprogramming/HTTP\_Basics.html}}
 \textbf{Thông báo yêu cầu HTTP} (HTTP request) được gửi từ người dùng đến máy chủ để yêu cầu máy chủ thực thi một hành động nào đó. \acrshort{http} request gồm các thành phần:
 \begin{itemize}
-    \item \textbf{Dòng bắt đầu (start line)} ví dụ như \colorbox{gray!30}{\texttt{POST / HTTP/1.1}}, \colorbox{gray!30}{\texttt{GET /1-duck.png HTTP/1.0}},\\\colorbox{gray!30}{\texttt{HEAD /items.html?productId=1337 HTTP/1.1}}, \colorbox{gray!30}{\texttt{OPTIONS /index.html HTTP/1.0}}. Dòng bắt \\đầu này bao gồm 3 thành phần:
+    \item \textbf{Dòng bắt đầu (start line)} ví dụ như \colorbox{gray!30}{\texttt{POST / HTTP/1.1}},\\\colorbox{gray!30}{\texttt{GET /1-duck.png HTTP/1.0}},\colorbox{gray!30}{\texttt{HEAD /items.html?productId=1337 HTTP/1.1}},\\\colorbox{gray!30}{\texttt{OPTIONS /index.html HTTP/1.0}}. Dòng bắt đầu này bao gồm 3 thành phần:
         \begin{itemize}
             \item \textbf{Phương thức \acrshort{http} (HTTP method)} dùng để mô tả hành động sẽ được thực thi bởi request đó. Những phương thức thường gặp là \texttt{GET, POST, PUT, HEAD, OPTIONS},...
             \item \textbf{Đối tượng yêu cầu (request target)} thường là một đường dẫn \acrshort{url} hoặc đường dẫn tuyệt đối đến tài nguyên trên máy chủ, nơi mà máy chủ sẽ thực hiện hành động đã yêu cầu.

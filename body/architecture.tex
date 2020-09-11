@@ -59,8 +59,9 @@ Webfuzzer tập trung chủ yếu vào ba trường hợp sử dụng (usecase) 
                 {}& &và trình duyệt web có thiết lập proxy sẵn\\
             \midrule
                 {}& &Người dùng chọn và gửi request mẫu cần kiểm thử đến\\
-                \textbf{Luồng thực thi}& &địa chỉ IP:port của ứng dụng. Webfuzzer sẽ phân giải request đó,\\
-                {}& &lưu vào cơ sở dữ liệu và hiển thị lên giao diện người dùng\\
+                \textbf{Luồng thực thi}& &địa chỉ IP:port của ứng dụng. Webfuzzer sẽ phân giải\\
+                {}& &request đó, lưu vào cơ sở dữ liệu và\\
+                {}& &hiển thị lên giao diện người dùng\\
             \midrule
                 {}& &Request mẫu được hiển thị trong danh sách \\
                 \textbf{Điều kiện sau}& &trên giao diện webfuzzer sau thao tác gửi request\\
@@ -82,8 +83,8 @@ Webfuzzer tập trung chủ yếu vào ba trường hợp sử dụng (usecase) 
             \midrule
                 \textbf{Điều kiện trước}& &Backend và \acrshort{ui} của ứng dụng webfuzzer đang họat động\\
             \midrule
-                {}& &Người dùng chọn request mẫu từ danh sách đang hiển thị,\\
-                \textbf{Luồng thực thi}& &sau đó chọn loại lỗ hổng cần kiểm thử\\
+                {}& &Người dùng chọn request mẫu từ danh sách đang\\
+                \textbf{Luồng thực thi}& &hiển thị, sau đó chọn loại lỗ hổng cần kiểm thử\\
                 {}& &và nhấn nút ``\textbf{Create fuzz request}''\\
             \midrule
                 \textbf{Điều kiện sau}& &Yêu cầu kiểm thử tương ứng xuất hiện\\
@@ -108,16 +109,15 @@ Webfuzzer tập trung chủ yếu vào ba trường hợp sử dụng (usecase) 
                 \textbf{Luồng thực thi}& &Người dùng chọn trang \textbf{Result} để xem kết quả kiểm thử\\
                 {}& &hoặc chọn một yêu cầu cụ thể để xem chi tiết\\
             \midrule
-                \textbf{Điều kiện sau}& &Người dùng xem được tổng quan và chi tiết kết quả của mỗi\\
-                {}& &yêu cầu kiểm thử. Đồng thời cho phép người dùng tái hiện lại\\
-                {}& &request gây lỗi trên điểm cuối ứng dụng web mục tiêu\\
+                \textbf{Điều kiện sau}& &Người dùng xem được tổng quan và chi tiết kết quả\\
+                {}& &của mỗi yêu cầu kiểm thử\\
             \midrule[0.3pt]\bottomrule[1pt]
         \end{tabular}
     \end{table}
 \end{itemize}
 Bảng \ref{tab:use-case-1} thể hiện trường hợp sử dụng đầu tiên, cụ thể là khi người dùng muốn gửi request mẫu cần kiểm thử đến ứng dụng để hiển thị trên giao diện người dùng webfuzzer. Người dùng chọn request mẫu và vị trí tham số theo nhu cầu kiểm thử trên phần mở rộng Burp Suite, sau đó gửi đến địa chỉ IP:port đang triển khai ứng dụng webfuzzer (sẽ được trình bày chi tiết ở \textbf{Phụ lục A}). Sau đó nội dung của request mẫu này sẽ được hiển thị trên giao diện để người dùng kiểm tra và tạo yêu cầu kiểm thử theo một số lỗ hổng bảo mật.\par
 Bảng \ref{tab:use-case-2} thể hiện trường hợp người dùng muốn tạo yêu cầu kiểm thử một request mẫu cụ thể với một số loại lỗ hổng. Người dùng chỉ việc chọn request mẫu trong danh sách và đánh dấu loại lỗ hổng cần kiểm thử và nhấn nút ``\textbf{Create fuzz request}''. Yêu cầu kiểm thử sẽ được đưa vào hàng đợi thực thi, đồng thời trạng thái và kết quả kiểm thử theo thời gian của yêu cầu này sẽ được hiển thị trong trang \textbf{Result} trên giao diện ứng dụng.\par
-Trường hợp sử dụng 3 được thể hiện trong Bảng \ref{tab:use-case-3}. Trong trường hợp này, người dùng có thể xem chung kết quả của một số yêu cầu kiểm thử gần đây nhất hoặc xem chi tiết kết quả của một yêu cầu bất kì theo thời gian thực bao gồm kết quả tổng quát, những payload/biểu thức chính quy phát hiện ra lỗi, đồng thời cho phép người dùng gửi lại request mẫu kèm theo những payload đó để tái hiện lại bằng chứng (\acrshort{poc}) mắc lỗi của ứng dụng web mục tiêu.
+Trường hợp sử dụng 3 được thể hiện trong Bảng \ref{tab:use-case-3}. Trong trường hợp này, người dùng có thể xem chung kết quả của một số yêu cầu kiểm thử gần đây nhất hoặc xem chi tiết kết quả của một yêu cầu bất kì theo thời gian thực bao gồm kết quả tổng quát và những payload/biểu thức chính quy phát hiện ra lỗi.
 \section{Công nghệ sử dụng}
 Đề mục này trình bày tóm tắt những ngôn ngữ lập trình, công nghệ, công cụ được chọn để hiện thực ứng dụng webfuzzer. Những công nghệ này được lựa chọn dựa trên những nghiên cứu nền trong quá trình thực hiện luận văn. Chúng tương thích, hỗ trợ lẫn nhau và thích hợp trong việc thỏa mãn những yêu cầu hiện thực đã đề ra.\par
 \textbf{Node.js} là một nền tảng phát triển ứng dụng độc lập được xây dựng trên Javascript Runtime của trình duyệt Chrome, thường được sử dụng để xây dựng các ứng dụng web một cách nhanh chóng và dễ dàng mở rộng. Phần lõi bên dưới của Node.js được viết hầu hết bằng C++ nên tốc độ xử lý và hiệu năng khá cao. Nhìn chung Node.js là một nền tảng rất thích hợp trong việc nhanh chóng xây dựng những ứng dụng web đa chức năng với hiệu năng cao, thích hợp với các ứng dụng tốt nghiệp này vì những lý do sau.
@@ -146,7 +146,13 @@ Trường hợp sử dụng 3 được thể hiện trong Bảng \ref{tab:use-ca
 Trong phạm vi luận văn này, Burp Suite vừa đóng vai trò như một proxy trung gian (interception proxy) can thiệp vào quá trình gửi \acrshort{http} request đến ứng dụng web mục tiêu, vừa đóng vai trò của một người trung gian (man in the middle - MITM) hỗ trợ chúng tôi phân tích, chỉnh sửa và chuyển tiếp request mẫu đó tới ứng dụng webfuzzer đồng thời cung cấp dữ liệu đối chứng trong quá trình kiểm thử tính đúng đắn và hiệu quả của ứng dụng.\par
 \textbf{MySQL} là một hệ quản trị cơ sở dữ liệu mã nguồn mở, được sử dụng phổ biến trên thế giới vì tốc độ cao, sự ổn định, dễ sử dụng và khả năng hoạt động được trên nhiều hệ điều hành của nó. MySQL là một hệ quản trị cơ sở dữ liệu quan hệ, sử dụng ngôn ngữ truy vấn có cấu trúc (\acrlong{sql} - \acrshort{sql}). Đặc biệt MySQL có tính sẵn sàng và nhất quán cao theo mô hình CAP (Consistency - Availability - Partition tolerance), có sẵn thư viện tương tác được viết bằng Node.js và tương thích tốt với các hệ điều hành Windows, Linux, Mac OS X. Dựa vào những yếu tố trên, MySQL rất phù hợp trong việc hiện thực một cơ sở dữ liệu dựa trên những công nghệ và yêu cầu đã đề ra.
 \section{Thiết kế kiến trúc hệ thống đề xuất}
-Đề mục này mô tả thiết kế chi tiết của kiến trúc hệ thống ứng dụng webfuzzer mà chúng tôi đề xuất, bao gồm ba thành phần backend, \acrshort{ui} và cơ sở dữ liệu của ứng dụng.
+Đề mục này mô tả thiết kế chi tiết của kiến trúc hệ thống ứng dụng webfuzzer mà chúng tôi đề xuất, bao gồm ba thành phần backend, \acrshort{ui} và cơ sở dữ liệu của ứng dụng, được khái quát như Hình \ref{fig:architecture} sau.
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=\textwidth,keepaspectratio=true]{images/architecture.png}
+    \caption{Kiến trúc đề xuất của ứng dụng webfuzzer}
+    \label{fig:architecture}
+\end{figure}
 \subsection{Backend}
 Hai thành phần quan trọng nhất của backend là cấu hình - mô-đun kiểm thử và giao diện lập trình ứng dụng. Các cấu hình kiểm thử được xây dựng dựa trên những yếu tố cần thiết để kiểm thử bằng chức năng \texttt{Intruder} của Burp Suite. Giao diện lập trình ứng dụng được thiết kế theo kiểu RESTful \acrshort{api}, giao tiếp với \acrshort{ui} bằng các \acrshort{http} request/response. RESTful \acrshort{api} là một tiêu chuẩn được áp dụng để thiết kế các \acrshort{api} cho ứng dụng web, thông qua việc quy định cách sử dụng các phương thức \acrshort{http} (\texttt{GET, POST, PUT, DELETE…}) và cách định dạng \acrshort{url} sao cho phù hợp với chức năng của từng \acrshort{api} và quản lý tài nguyên chung của ứng dụng một cách có hệ thống.
 \textbf{Cấu hình và mô-đun kiểm thử.} Dựa vào cách thức phát hiện lỗ hổng bằng thời gian phản hồi \acrshort{http} request và sự trùng khớp nội dung của response trả về, đối với mỗi loại lỗ hổng, chúng tôi xây dựng cấu hình kiểm thử bao gồm các thuộc tính sau. 
@@ -179,12 +185,12 @@ Mỗi phương thức trong các lớp trình điều khiển này thực hiện
     \label{tab:api-design}
     \begin{tabular}[ht]{cccl}
         \toprule[1pt]\midrule[0.3pt]
-            \textbf{Lớp điều khiển}&\textbf{Tên phương thức}&\textbf{Đường dẫn API}&\textbf{Mô tả}\\ 
+            \textbf{Lớp}&\textbf{Phương thức}&\textbf{Đường dẫn API}&\textbf{Mô tả}\\ 
         \midrule
-            {}&receiveTargetFromBurp&\colorbox{gray!30}{\texttt{POST /}}&Nhận request mẫu từ\\
-            BurpController&{}&{}& phần mở rộng Burp Suite\\
+            {}&receiveTarget&\colorbox{gray!30}{\texttt{POST /}}&Nhận request mẫu từ\\
+            Burp&{FromBurp}&{}& phần mở rộng Burp Suite\\
             \addlinespace
-            {}&getAllEndpoint&\colorbox{gray!30}{\texttt{GET /}}&Truy vấn danh sách các \\
+            {Controller}&getAllEndpoint&\colorbox{gray!30}{\texttt{GET /}}&Truy vấn danh sách các \\
             {}&{}&{}&request mẫu đã nhận\\
             \midrule[0.3pt]
             {}&createFuzzRequest&\colorbox{gray!30}{\texttt{POST /target}}&Tạo yêu cầu kiểm thử\\
@@ -193,19 +199,19 @@ Mỗi phương thức trong các lớp trình điều khiển này thực hiện
             {}&{}&{}& kiểm thử theo ID\\
             \addlinespace
             {}&getRequestList&\colorbox{gray!30}{\texttt{GET /target/list}}&Truy vấn danh sách các\\
-            TargetController&{}&{}&yêu cầu kiểm thử\\
+            Target&{}&{}&yêu cầu kiểm thử\\
             \addlinespace
-            {}&getVulnTypes&\colorbox{gray!30}{\texttt{GET /target/configs}}&Truy vấn danh sách\\
+            {Controller}&getVulnTypes&\colorbox{gray!30}{\texttt{GET /target/configs}}&Truy vấn danh sách\\
             {}&{}&{}&cấu hình kiểm thử\\
             \addlinespace
             {}&searchUrl&\colorbox{gray!30}{\texttt{GET /target/search}}&Lọc yêu cầu kiểm thử\\
             {}&{}&{}&theo \acrshort{url}\\
             \midrule[0.3pt]
             {}&executeFuzzRequest&\colorbox{gray!30}{\texttt{GET /fuzz}}&Thực thi một yêu cầu\\
-            FuzzController&{}&{}&kiểm thử theo ID\\
+            Fuzz&{}&{}&kiểm thử theo ID\\
             \addlinespace
-            {}&executeSubmittedRequest&\colorbox{gray!30}{\texttt{GET}}&Thực thi một yêu cầu\\
-            {}&{}&\colorbox{gray!30}{\texttt{/fuzz/free-request}}&kiểm thử đã tạo\\
+            {Controller}&executeSubmitted&\colorbox{gray!30}{\texttt{GET}}&Thực thi một yêu cầu\\
+            {}&{Request}&\colorbox{gray!30}{\texttt{/fuzz/free-request}}&kiểm thử đã tạo\\
         \midrule[0.3pt]\bottomrule[1pt]
     \end{tabular}
 \end{table}

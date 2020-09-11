@@ -207,7 +207,7 @@ const navItems = [
   \caption{Thanh điều hướng và ví dụ thông báo đấy trên giao diện người dùng}
   \label{fig:notification-example}
 \end{figure}
-Các thông báo đẩy trên \acrshort{ui} của webfuzzer có hai kiểu, thành công (success) hoặc thất bại (error) như Hình \ref{fig:notification-example} trên. Định dạng của các kiểu này được thiết lập trong biến \texttt{NOTIFICATION\_SYSTEM\_STYLE} ở tập tin \texttt{src/utils/constants.js} trong thư mục gốc mã nguồn \acrshort{ui}. Chúng tôi sử dụng component \texttt{NotificationSystem} của thư viện \texttt{react-notification-system} để hiện thực các thông báo đẩy này. Các props chính mà component này nhận bao gồm nội dung thông báo (\texttt{message}), kiểu thông báo (\texttt{level}) và định dạng kiểu (\texttt{style}) như Đoạn mã \ref{lst:implement-notifications} sau.
+Các thông báo đẩy trên \acrshort{ui} của webfuzzer có hai kiểu, thành công (success) hoặc thất bại (error) như Hình \ref{fig:notification-example} trên. Định dạng của các kiểu này được thiết lập trong biến \texttt{NOTIFICATION\_SYSTEM\_STYLE} ở tập tin \texttt{src/utils/constants.js} trong thư mục gốc mã nguồn \acrshort{ui}. Chúng tôi sử dụng component \texttt{NotificationSystem} của thư viện\\\texttt{react-notification-system} để hiện thực các thông báo đẩy này. Các props chính mà component này nhận bao gồm nội dung thông báo (\texttt{message}), kiểu thông báo (\texttt{level}) và định dạng kiểu (\texttt{style}) như Đoạn mã \ref{lst:implement-notifications} sau.
 \begin{lstlisting}[style=ES6, label={lst:implement-notifications}, caption={Các thuộc tính props truyền vào component NotificationSystem}]
 this.notificationSystem.addNotification({
   message: 'Send fuzz request successfully',

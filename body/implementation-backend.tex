@@ -1,5 +1,5 @@
 \chapter{Hiện thực ứng dụng webfuzzer}
-Chương này mô tả chi tiết hiện thực của kiến trúc hệ thống ứng dụng webfuzzer, bao gồm ba thành phần backend, \acrshort{ui} và cơ sở dữ liệu của ứng dụng dựa trên thiết kế đã đề ra ở \textbf{Chương 5}. Mã nguồn của ứng dụng webfuzzer được tải lên ở \href{https://gitlab.com/y4t0g4m1/webfuzzer-nodejs}{\texttt{https://gitlab.com/y4t0g4m1/webfuzzer-nodejs}}. Thông tin triển khai ứng dụng trên \acrshort{vps} được đề cập ở \textbf{Phụ lục A} tại thời điểm hoàn thành luận văn.
+Chương này mô tả chi tiết hiện thực của kiến trúc hệ thống ứng dụng webfuzzer, bao gồm ba thành phần backend, \acrshort{ui} và cơ sở dữ liệu của ứng dụng dựa trên thiết kế đã đề ra ở \textbf{Chương 5}. Mã nguồn của ứng dụng webfuzzer được tải lên ở\\\href{https://gitlab.com/y4t0g4m1/webfuzzer-nodejs}{\texttt{https://gitlab.com/y4t0g4m1/webfuzzer-nodejs}}. Thông tin triển khai ứng dụng trên \acrshort{vps} được đề cập ở \textbf{Phụ lục A} tại thời điểm hoàn thành luận văn.
 \section{Backend}
 Đề mục này trình bày chi tiết hiện thực backend của ứng dụng webfuzzer, bao gồm giao diện lập trình ứng dụng, định dạng dữ liệu của phần mở rộng Burp Suite, các biến môi trường, cấu hình và mô-đun kiểm thử.
 \subsection{Giao diện lập trình ứng dụng}
@@ -55,11 +55,11 @@ const response = (res, result, error) => {
 Phần mở rộng Burp Suite cho phép gửi \acrshort{http} request mẫu từ mô-đun \texttt{Intruder} của Burp Suite đến công cụ \textbf{webfuzzer} theo định dạng JSON như Đoạn mã \ref{lst:base-request-format} dưới đây, quá trình chọn và gửi request mẫu sẽ được trình bày ở \textbf{Phụ lục A} của luận văn.
 \begin{lstlisting}[style=ES6, label={lst:base-request-format}, caption={Cấu trúc của một HTTP request mẫu được gửi từ phần mở rộng Burp Suite}]
 {
-  "url": "http://testphp.vulnweb.com:80/showimage.php?file=\xa7./pictures/1.jpg\xa7",
+  "url": "http://testphp.vulnweb.com:80/showimage.php ?file=\xa7./pictures/1.jpg\xa7",
   "cookies": "",
   "headers": {
       "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0",
-      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      "Accept": "text/html,application/xhtml+xml,application/xml; q=0.9,image/webp,*/*;q=0.8",
       "Accept-Language": "en-US,en;q=0.5",
       "Accept-Encoding": "gzip, deflate",
       "DNT": "1",
@@ -81,34 +81,39 @@ Các biến môi trường (environment variables) được thiết lập để 
         \toprule[1pt]\midrule[0.3pt]
             \textbf{Tên biến môi trường}&\textbf{Kiểu dữ liệu}&\textbf{Mô tả}\\
         \midrule
-            SERVICE\_PORT&Integer&Cổng khởi chạy backend của ứng dụng (13336)\\
+            SERVICE\_PORT&Integer&Cổng khởi chạy backend của ứng dụng\\
             \addlinespace
-            {}&{}&Các thiết lập để kết nối đến dịch vụ MySQL\\
-            mysqlConfig&Object&của hệ điều hành, bao gồm host:port, tên\\
-            {}&{}&cơ sở dữ liệu và thông tin đăng nhập\\
+            {}&{}&Các thiết lập để kết nối đến dịch vụ\\
+            mysqlConfig&Object&MySQL, bao gồm host:port, tên CSDL\\
+            {}&{}&và thông tin đăng nhập\\
             \addlinespace
-            defaultFuzzConfig&Object&Cấu hình kiểm thử mặc định của ứng dụng\\
+            defaultFuzzConfig&Object&Cấu hình kiểm thử mặc định\\
             \addlinespace
-            defaultVulnTypes&Array&Các lỗ hổng cần kiểm thử đối với trường hợp\\
+            defaultVulnTypes&Array&Các lỗ hổng mặc định được chọn khi\\
             {}&{}&tự động tạo yêu cầu kiểm thử\\
             \addlinespace
-            fuzzStrategy&String&Chiến thuật kiểm thử mặc định (\texttt{Sniper})\\
+            fuzzStrategy&String&Chiến thuật kiểm thử mặc định\\
             \addlinespace
-            autoCreateFuzzRequest&Boolean&Tự động tạo yêu cầu kiểm thử sau khi nhận \acrshort{http}\\
-            {}&{}&request mẫu từ Burp Suite với các lỗ hổng mặc định\\
+            {}&{}&Tự động tạo yêu cầu kiểm thử sau khi\\
+            autoCreateFuzzRequest&Boolean&nhận \acrshort{http} request mẫu từ Burp Suite\\
+            {}&{}&với các lỗ hổng mặc định\\
             \addlinespace
-            autoFuzz&Boolean&Tự động thực thi yêu cầu kiểm thử vừa tạo nếu\\
-            {}&{}&không có yêu cầu nào khác đang được thực thi\\
+            {}&{}&Tự động thực thi yêu cầu kiểm thử\\
+            autoFuzz&Boolean&vừa tạo nếu không có yêu cầu nào\\
+            {}&{}&khác đang được thực thi\\
             \addlinespace
-            autoExecuteQueuedRequest&Boolean&Tự động thực thi một yêu cầu kiểm thử đã tạo\\
-            {}&{}&ngay khi thực thi xong yêu cầu hiện tại\\
+            {}&{}&Tự động thực thi một yêu cầu kiểm thử\\
+            autoExecuteQueuedRequest&Boolean&đã tạo ngay sau khi thực thi xong\\
+            {}&{}&yêu cầu hiện tại\\
             \addlinespace
-            encodeUrl&Boolean&Encode \acrshort{url} của \acrshort{http} request kiểm thử gửi đi\\
+            encodeUrl&Boolean&Encode \acrshort{url} của \acrshort{http} request\\
+            {}&{}&kiểm thử gửi đi\\
             \addlinespace
-            verbose&Boolean&Hiển thị thêm thông tin chi tiết trong quá trình\\
-            {}&{}&hoạt động của backend trên terminal\\
+            verbose&Boolean&Hiển thị thêm chi tiết hoạt động\\
+            {}&{}&của backend trên terminal\\
             \addlinespace
-            displayResultOnTerminal&Boolean&Hiển thị kết quả kiểm thử trên terminal ở backend\\
+            displayResultOnTerminal&Boolean&Hiển thị kết quả kiểm thử\\
+            {}&{}&trên terminal ở backend\\
         \midrule[0.3pt]\bottomrule[1pt]
     \end{tabular}
 \end{table}
@@ -185,7 +190,7 @@ Sau khi có danh sách khuôn mẫu và payload, ta lần lượt thay từng pa
   normalReq: '0',
   vulnId: '1',
   payload: '..//etc/passwd',
-  req: '{"url":"http://testphp.vulnweb.com:80/showimage.php?file=..//etc/passwd", "cookies":"","headers":{"User-Agent":"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0)Gecko/20100101 Firefox/74.0","Accept":"text/html,application/xhtml+ xml,application/xml;q=0.9,image/webp,*/*;q=0.8","Accept-Language":"en-US,en; q=0.5","Accept-Encoding":"gzip,deflate","DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"},"method":"get"}',
+  req: '{"url":"http://testphp.vulnweb.com:80/showimage.php? file=..//etc/passwd", "cookies":"","headers":{"User-Agent":"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0)Gecko/20100101 Firefox/74.0","Accept":"text/html,application/xhtml+xml, application/xml;q=0.9,image/webp,*/*;q=0.8", "Accept-Language":"en-US,en;q=0.5","Accept-Encoding":"gzip,deflate", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"},"method":"get"}',
   timeout: 0
 }
 \end{lstlisting}
@@ -203,8 +208,7 @@ Sau khi có danh sách khuôn mẫu và payload, ta lần lượt thay từng pa
   url: 'http://testphp.vulnweb.com:80/showimage.php?file=..//etc/passwd',
   headers: { 
     'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0',
-    Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.5',
+    Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp, */*;q=0.8','Accept-Language': 'en-US,en;q=0.5',
     'Accept-Encoding': 'gzip, deflate',
     DNT: '1',
     Connection: 'close',
